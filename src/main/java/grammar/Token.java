@@ -7,7 +7,7 @@ public class Token {
     //Constructors
     public Token(){
         string = "";
-        type = Type.unknown;
+        type = Type.UNKNOWN;
     }
     public Token(String string, Type type){
         this.string = string;
@@ -29,5 +29,9 @@ public class Token {
     }
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public static Token compoundFrom(String string) {
+        return new Token(string, Type.COMPOUND_TERMINAL);
     }
 }

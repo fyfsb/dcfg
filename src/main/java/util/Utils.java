@@ -1,4 +1,4 @@
-package auxiliary;
+package util;
 
 import grammar.Grammar;
 import grammar.Token;
@@ -6,9 +6,8 @@ import grammar.Type;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.SortedMap;
 
-public class function {
+public class Utils {
     //Checks whether a string equals another string starting from the index "ind"
     public static boolean isSubstringFromInd(String string, int ind, String substring) {
         if(string == null || substring == null) {
@@ -52,7 +51,7 @@ public class function {
     //If the token is unknown, then decompose
     public static void decomposeUnknownStrings(ArrayList<Token> array, Grammar g){
         for(int i = 0; i < array.size(); i++){
-            if(array.get(i).getType() == Type.unknown){
+            if(array.get(i).getType() == Type.UNKNOWN){
                 ArrayList<Token> newArray = decomposeToken(array.get(i), g);
                 array.remove(i);
                 for(Token t : newArray){
@@ -92,7 +91,7 @@ public class function {
             Term term = terms.get(i);
             if(i + 1 < terms.size()){
                 Term term_ = terms.get(i + 1);
-                if(term.token.getType() == Type.compoundTerminal && term_.token.getType() == Type.nonterminal){
+                if(term.token.getType() == Type.COMPOUND_TERMINAL && term_.token.getType() == Type.NONTERMINAL){
                     if(term.index + term.token.getString().length() > term_.index){
                         terms.remove(term);
                         i--;
@@ -101,7 +100,7 @@ public class function {
             }
             if(0 < i){
                 Term term_ = terms.get(i - 1);
-                if(term.token.getType() == Type.compoundTerminal && term_.token.getType() == Type.nonterminal){
+                if(term.token.getType() == Type.COMPOUND_TERMINAL && term_.token.getType() == Type.NONTERMINAL){
                     if(term.index < term_.index + term_.token.getString().length()){
                         terms.remove(term);
                         i--;
@@ -115,7 +114,7 @@ public class function {
         while(i < t.getString().length()){
             if(j < terms.size() && i == terms.get(j).index){
                 for(int ind = 0; ind < sb.length(); ind++){
-                    array.add(new Token(Character.toString(sb.charAt(ind)), Type.terminal));
+                    array.add(new Token(Character.toString(sb.charAt(ind)), Type.TERMINAL));
                 }
                 sb.setLength(0);
                 array.add(terms.get(j).token);
@@ -127,7 +126,7 @@ public class function {
             }
         }
         for(int ind = 0; ind < sb.length(); ind++){
-            array.add(new Token(Character.toString(sb.charAt(ind)), Type.terminal));
+            array.add(new Token(Character.toString(sb.charAt(ind)), Type.TERMINAL));
         }
         return array;
     }
