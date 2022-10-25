@@ -17,6 +17,9 @@ public class Token {
     public String toString(){
         return type.toString() + ": " + string;
     }
+    public static Token compoundFrom(String string) {
+        return new Token(string, Type.COMPOUND_TERMINAL);
+    }
     //Getters and Setters
     public String getString() {
         return string;
@@ -29,9 +32,5 @@ public class Token {
     }
     public void setType(Type type) {
         this.type = type;
-    }
-
-    public static Token compoundFrom(String string) {
-        return new Token(string, Type.COMPOUND_TERMINAL);
     }
 }
