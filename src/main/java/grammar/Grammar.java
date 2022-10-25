@@ -1,11 +1,10 @@
 package grammar;
 
-import auxiliary.function;
+import util.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -44,7 +43,7 @@ public class Grammar {
         addNonterminals();
         //Decompose the right side of the productions (translate unknowns to terminals and nonterminals)
         for(Production p : productions){
-            function.decomposeUnknownStrings(p.getRight(), this);
+            Utils.decomposeUnknownStrings(p.getRight(), this);
         }
         //Add terminals
         terminals = new ArrayList<>();
@@ -54,12 +53,12 @@ public class Grammar {
     private void addProductions(Scanner in) {
         while(in.hasNext()) {
             String string = in.nextLine();
-            ArrayList<String> parts = function.splitBySubstring(string, " -> ");
+            ArrayList<String> parts = Utils.splitBySubstring(string, " -> ");
             if(parts.size() < 2){
                 System.out.println("Grammar.addProductions error parts size < 2");
                 return;
             }
-            for(String right : function.splitBySubstring(parts.get(1), " | ")) {
+            for(String right : Utils.splitBySubstring(parts.get(1), " | ")) {
                 productions.add(new Production(parts.get(0) + " -> " + right));
             }
         }
@@ -77,7 +76,7 @@ public class Grammar {
         HashSet<String> check = new HashSet<>();
         for(Production p : this.productions){
             for(Token t : p.getRight()){
-                if(t.getType() == Type.terminal && !check.contains(t.getString())){
+                if(t.getType() == Type.TERMINAL && !check.contains(t.getString())){
                     this.terminals.add(t);
                     check.add(t.getString());
                 }

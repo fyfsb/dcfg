@@ -1,6 +1,6 @@
 package grammar;
 
-import auxiliary.function;
+import util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +20,13 @@ public class Production {
     }
     public Production(String string){
         //Decompose the production by " -> "
-        ArrayList<String> parts = function.splitBySubstring(string, " -> ");
+        ArrayList<String> parts = Utils.splitBySubstring(string, " -> ");
         if(parts.size() < 2){
             System.out.println("Production.constructor error ' -> ' not found ");
             return;
         }
-        this.left = new Token(parts.get(0), Type.nonterminal);
-        this.right = new ArrayList<>(List.of(new Token(parts.get(1), Type.unknown)));
+        this.left = new Token(parts.get(0), Type.NONTERMINAL);
+        this.right = new ArrayList<>(List.of(new Token(parts.get(1), Type.UNKNOWN)));
     }
     //Functions
     public String toString(){
