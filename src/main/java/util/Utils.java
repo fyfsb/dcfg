@@ -110,23 +110,15 @@ public class Utils {
         }
         //separate nonterminals, compoundTerminals and terminals
         int i = 0, j = 0;
-        StringBuilder sb = new StringBuilder();
         while(i < t.getString().length()){
             if(j < terms.size() && i == terms.get(j).index){
-                for(int ind = 0; ind < sb.length(); ind++){
-                    array.add(new Token(Character.toString(sb.charAt(ind)), Type.TERMINAL));
-                }
-                sb.setLength(0);
                 array.add(terms.get(j).token);
                 i += terms.get(j).token.getString().length();
                 j++;
             } else {
-                sb.append(t.getString().charAt(i));
+                array.add(new Token(Character.toString(t.getString().charAt(i)), Type.TERMINAL));
                 i++;
             }
-        }
-        for(int ind = 0; ind < sb.length(); ind++){
-            array.add(new Token(Character.toString(sb.charAt(ind)), Type.TERMINAL));
         }
         return array;
     }
