@@ -15,7 +15,7 @@ public class Main {
 
         ArrayList<Token> compoundTerminalsC0 = new ArrayList<>(compounds.stream().map(Token::compoundFrom).toList());
 
-        Grammar g = new Grammar(compoundTerminalsC0, "C:\\Users\\Student\\Desktop\\CFG\\New\\Example2.txt");
+        Grammar g = new Grammar(compoundTerminalsC0, "C:\\Users\\Student\\Desktop\\CFG\\New\\C0.txt");
 
         g.print();
 
