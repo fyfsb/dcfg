@@ -1,17 +1,19 @@
 package util;
 
+import dk_0.Item;
 import grammar.Grammar;
 import grammar.Token;
 import grammar.Type;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 
 public class Utils {
     //Checks whether a string equals another string starting from the index "ind"
     public static boolean isSubstringFromInd(String string, int ind, String substring) {
         if(string == null || substring == null) {
-            System.out.println("Auxiliary.Function.isSubstring null exception");
+            System.out.println("Utils.isSubstring null exception");
             return false;
         }
         if(string.length() - ind < substring.length()) {
@@ -27,7 +29,7 @@ public class Utils {
     //Splits the string by the substring and place the parts in a ArrayList
     public static ArrayList<String> splitBySubstring(String string, String substring){
         if(string == null || substring == null) {
-            System.out.println("Auxiliary.Function.splitBySubstring null exception");
+            System.out.println("Utils.splitBySubstring null exception");
             return new ArrayList<>();
         }
         ArrayList<String> parts = new ArrayList<>();
@@ -48,7 +50,7 @@ public class Utils {
         }
         return parts;
     }
-    //If the token is unknown, then decompose
+    //If the ArrayList of tokens is unknown, then decompose
     public static void decomposeUnknownStrings(ArrayList<Token> array, Grammar g){
         for(int i = 0; i < array.size(); i++){
             if(array.get(i).getType() == Type.UNKNOWN){
@@ -61,7 +63,7 @@ public class Utils {
             }
         }
     }
-    //
+    //Decompose unknown token
     public static ArrayList<Token> decomposeToken(Token t, Grammar g){
         ArrayList<Token> array = new ArrayList<>();
         record Term(
@@ -121,5 +123,20 @@ public class Utils {
             }
         }
         return array;
+    }
+    //Return HashSet of possible steps to move forward the dot
+    public static HashSet<Token> possibleSteps(ArrayList<Item> items){
+        if(items == null) {
+            System.out.println("Utils.possibleSteps null exception");
+            return new HashSet<>();
+        }
+        HashSet<Token> steps = new HashSet<>();
+        for(Item i : items){
+            Token step = i.getProduction().getRight().get(i.getIndex());
+            if(step != null){
+                steps.add(step);
+            }
+        }
+        return steps;
     }
 }

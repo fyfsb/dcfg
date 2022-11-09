@@ -1,3 +1,4 @@
+import dk_0.DK_0;
 import grammar.Grammar;
 import grammar.Token;
 import java.util.ArrayList;
@@ -14,9 +15,14 @@ public class Main {
 
         ArrayList<Token> compoundTerminalsC0 = new ArrayList<>(compounds.stream().map(Token::compoundFrom).toList());
 
-        Grammar g = new Grammar(compoundTerminalsC0, "C:\\Users\\Student\\Desktop\\CFG\\New\\C0.txt");
+        Grammar g = new Grammar(compoundTerminalsC0, "C:\\Users\\Student\\Desktop\\CFG\\New\\Example2.txt");
 
         g.print();
+
+        System.out.println();
+        System.out.println();
+
+        System.out.println(DK_0.test(g));
 
         /*
         for(Production p : g.getProductions()){
