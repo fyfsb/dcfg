@@ -1,0 +1,101 @@
+package typetable;
+
+import exceptions.typedef.*;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class TypeTable {
+    private final Map<String, VarType> table;
+    private static TypeTable INSTANCE;
+
+    private TypeTable() {
+        table = new HashMap<>();
+        fillWithPrimitives();
+    }
+
+    public static TypeTable getInstance() {
+        if (INSTANCE == null)
+            INSTANCE = new TypeTable();
+        return INSTANCE;
+    }
+
+    public VarType getType(String name) {
+        return table.getOrDefault(name, VarType.UNDEFINED_TYPE);
+    }
+
+    private boolean isNameDistinct(String name) {
+        return !table.containsKey(name);
+    }
+
+    private void checkTypeDefined(String name) throws TypeNotDefinedException {
+        if (getType(name) == VarType.UNDEFINED_TYPE)
+            throw new TypeNotDefinedException(name);
+    }
+
+    public void addType(VarType.Builder builder) throws TypeDefException {
+        // check names distinct
+        if (!isNameDistinct(builder.getName()))
+            throw new TypeDefNameAlreadyExistsException(builder);
+
+        // case split
+        switch (builder.getTypeClass()) {
+            case ARRAY -> addArrayType(builder);
+            case POINTER -> addPointerType(builder);
+            case STRUCT -> addStructType(builder);
+            default -> throw new TypeDefUnsupportedOperationException();
+        }
+    }
+
+    private void addArrayType(VarType.Builder arrayBuilder) throws TypeDefException {
+        VarType arrayComponentTarget = table.getOrDefault(arrayBuilder.getaCTargetName(), VarType.UNDEFINED_TYPE);
+        checkTypeDefined(arrayBuilder.getaCTargetName());
+        if (arrayBuilder.getArraySize() <= 0)
+            throw new TypeDefInvalidArraySizeException(arrayBuilder);
+        VarType type = arrayBuilder.setSize(arrayBuilder.getArraySize() * arrayComponentTarget.size).build();
+        table.put(type.name, type);
+    }
+
+    private void addPointerType(VarType.Builder pointerBuilder) {
+        VarType type = pointerBuilder.build();
+        table.put(type.name, type);
+    }
+
+    private void addStructType(VarType.Builder structBuilder) throws TypeDefException {
+        Set<String> names = new HashSet<>();
+        Map<String, Variable> components = new HashMap<>();
+        int displacement = 0;
+        System.out.println(structBuilder.getStructComponentPairs());
+        for (VarType.Builder.Pair pair : structBuilder.getStructComponentPairs()) {
+            System.out.println(pair.name());
+
+            checkTypeDefined(pair.typeName());
+            VarType type = getType(pair.typeName());
+            if (names.contains(pair.name()))
+                throw new TypeDefDuplicateStructComponentNameException(structBuilder, pair.name());
+            names.add(pair.name());
+            components.put(pair.name(), new Variable(pair.name(), 0, type, displacement));
+            displacement += type.size;
+        }
+
+        VarType type = structBuilder.setSize(displacement).setStructComponents(components).build();
+        table.put(type.name, type);
+    }
+
+    private void fillWithPrimitives() {
+        table.put("uint", VarType.UINT_TYPE);
+        table.put("int", VarType.INT_TYPE);
+        table.put("char", VarType.CHAR_TYPE);
+        table.put("bool", VarType.BOOL_TYPE);
+    }
+
+    public void printTable() {
+        System.out.println("VarType(name, size, typeClass, pTarget, acTarget, aSize, sComps");
+        table.forEach((key, value) -> {
+            System.out.println(key + ", " + value.size + ", " + value.typeClass + ", " + value.pointerTypeTargetName +
+                    ", " + value.arrayCompTypeTargetName + ", " + value.arraySize + ", " + value.structComponents);
+        });
+    }
+}
