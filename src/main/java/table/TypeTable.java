@@ -1,6 +1,8 @@
-package typetable;
+package table;
 
 import exceptions.typedef.*;
+import model.VarType;
+import model.Variable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +66,8 @@ public class TypeTable {
     }
 
     private void addStructType(VarType.Builder structBuilder) throws TypeDefException {
+        if (structBuilder.getStructComponentPairs().isEmpty())
+            throw new TypeDefNoStructComponentsException(structBuilder);
         Set<String> names = new HashSet<>();
         Map<String, Variable> components = new HashMap<>();
         int displacement = 0;
@@ -93,9 +97,7 @@ public class TypeTable {
 
     public void printTable() {
         System.out.println("VarType(name, size, typeClass, pTarget, acTarget, aSize, sComps");
-        table.forEach((key, value) -> {
-            System.out.println(key + ", " + value.size + ", " + value.typeClass + ", " + value.pointerTypeTargetName +
-                    ", " + value.arrayCompTypeTargetName + ", " + value.arraySize + ", " + value.structComponents);
-        });
+        table.forEach((key, value) -> System.out.println(key + ", " + value.size + ", " + value.typeClass + ", " + value.pointerTypeTargetName +
+                ", " + value.arrayCompTypeTargetName + ", " + value.arraySize + ", " + value.structComponents));
     }
 }

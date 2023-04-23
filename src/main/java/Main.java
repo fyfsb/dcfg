@@ -1,6 +1,6 @@
 import exceptions.typedef.TypeDefException;
-import typetable.TypeTable;
-import typetable.VarType;
+import table.TypeTable;
+import model.VarType;
 
 import java.util.List;
 

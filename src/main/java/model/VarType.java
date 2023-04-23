@@ -1,10 +1,12 @@
-package typetable;
+package model;
+
+import table.TypeTable;
 
 import java.util.List;
 import java.util.Map;
 
 public class VarType {
-    enum TypeClass {
+    public enum TypeClass {
         UINT, INT, CHAR, BOOL, ARRAY, STRUCT, POINTER, UNDEFINED
     }
 
@@ -65,7 +67,7 @@ public class VarType {
 
     public static class Builder {
 
-        record Pair(String name, String typeName) {
+        public record Pair(String name, String typeName) {
         }
 
         private String name;

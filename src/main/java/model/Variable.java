@@ -1,4 +1,4 @@
-package typetable;
+package model;
 
 public class Variable {
     private final String name;

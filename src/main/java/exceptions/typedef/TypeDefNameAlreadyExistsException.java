@@ -1,6 +1,6 @@
 package exceptions.typedef;
 
-import typetable.VarType;
+import model.VarType;
 
 public class TypeDefNameAlreadyExistsException extends TypeDefException {
     public TypeDefNameAlreadyExistsException(VarType.Builder varType) {
