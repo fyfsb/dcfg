@@ -1,5 +1,6 @@
 package model;
 
+import exceptions.typedef.TypeNotDefinedException;
 import table.TypeTable;
 
 import java.util.List;
@@ -11,9 +12,9 @@ public class VarType {
     }
 
     public final static VarType UINT_TYPE = new VarType("UINT", 4, TypeClass.UINT, null, null, 0, null);
-    public final static VarType INT_TYPE = new VarType("INT", 4, TypeClass.INT, null, null, 0, null);
+    public final static VarType INT_TYPE = new VarType("INTEGER", 4, TypeClass.INT, null, null, 0, null);
     public final static VarType CHAR_TYPE = new VarType("CHAR", 4, TypeClass.CHAR, null, null, 0, null);
-    public final static VarType BOOL_TYPE = new VarType("BOOL", 1, TypeClass.BOOL, null, null, 0, null);
+    public final static VarType BOOL_TYPE = new VarType("BOOL", 4, TypeClass.BOOL, null, null, 0, null);
     public final static VarType UNDEFINED_TYPE = new VarType("UNDEFINED", 0, TypeClass.UNDEFINED, null, null, 0, null);
 
 
@@ -57,11 +58,11 @@ public class VarType {
                 .setTypeClass(TypeClass.STRUCT);
     }
 
-    public VarType getPointerTargetType() {
+    public VarType getPointerTargetType() throws TypeNotDefinedException {
         return TypeTable.getInstance().getType(pointerTypeTargetName);
     }
 
-    public VarType getArrayCompTargetType() {
+    public VarType getArrayCompTargetType() throws TypeNotDefinedException {
         return TypeTable.getInstance().getType(arrayCompTypeTargetName);
     }
 

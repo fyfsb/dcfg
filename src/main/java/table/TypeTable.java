@@ -24,8 +24,12 @@ public class TypeTable {
         return INSTANCE;
     }
 
-    public VarType getType(String name) {
-        return table.getOrDefault(name, VarType.UNDEFINED_TYPE);
+    public VarType getType(String name) throws TypeNotDefinedException {
+        VarType type = table.getOrDefault(name, VarType.UNDEFINED_TYPE);
+        if (type == VarType.UNDEFINED_TYPE) {
+            throw new TypeNotDefinedException(name);
+        }
+        return type;
     }
 
     private boolean isNameDistinct(String name) {
@@ -66,11 +70,16 @@ public class TypeTable {
     }
 
     private void addStructType(VarType.Builder structBuilder) throws TypeDefException {
-        if (structBuilder.getStructComponentPairs().isEmpty())
+        var type = createStructType(structBuilder);
+        table.put(type.name, type);
+    }
+
+    public VarType createStructType(VarType.Builder structBuilder) throws TypeDefException {
+        if (structBuilder.getStructComponentPairs().isEmpty()) // struct { } x;
             throw new TypeDefNoStructComponentsException(structBuilder);
         Set<String> names = new HashSet<>();
         Map<String, Variable> components = new HashMap<>();
-        int displacement = 0;
+        int displacement = 0; // struct { int a, int c } x;
         System.out.println(structBuilder.getStructComponentPairs());
         for (VarType.Builder.Pair pair : structBuilder.getStructComponentPairs()) {
             System.out.println(pair.name());
@@ -84,8 +93,7 @@ public class TypeTable {
             displacement += type.size;
         }
 
-        VarType type = structBuilder.setSize(displacement).setStructComponents(components).build();
-        table.put(type.name, type);
+        return structBuilder.setSize(displacement).setStructComponents(components).build();
     }
 
     private void fillWithPrimitives() {

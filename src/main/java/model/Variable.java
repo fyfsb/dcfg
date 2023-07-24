@@ -36,6 +36,6 @@ public class Variable {
 
     @Override
     public String toString() {
-        return "Variable(name=" + name + ",ba=" + baseAddress + ",displ=" + displacement + ",typeClass=" + type.typeClass+")";
+        return "Variable(name=" + name + ",ba=" + baseAddress + ",displ=" + displacement + ",typeClass=" + type.typeClass+",struct components=" + type.structComponents + ")";
     }
 }
