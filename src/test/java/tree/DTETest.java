@@ -42,4 +42,10 @@ public class DTETest {
         List<DTE> actual = List.of(padA, padB, padC);
         assert pads.getFlattenedSequence().equals(actual);
     }
+
+    @Test
+    public void getBorderWord() {
+        String actual = "charaboolbintc";
+        assert actual.equals(pads.getBorderWord());
+    }
 }

@@ -4,11 +4,13 @@ import exceptions.function.FunctionAlreadyExistsException;
 import exceptions.function.FunctionException;
 import exceptions.function.FunctionNotFoundException;
 import model.Fun;
+import tree.DTE;
+import tree.TokenType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class FunctionTable {
+public class FunctionTable implements Table {
     private final Map<String, Fun> table;
     private static FunctionTable INSTANCE;
 
@@ -32,7 +34,6 @@ public class FunctionTable {
     public void addFunction(Fun function) throws FunctionAlreadyExistsException {
         String functionName = function.getName();
         if (table.containsKey(functionName))
-            // int f(), int f(int a)
             throw new FunctionAlreadyExistsException(functionName);
         table.put(functionName, function);
     }
@@ -40,13 +41,29 @@ public class FunctionTable {
     public void printTable() {
         System.out.println("\n\n------ FUNCTION TABLE ------");
         table.forEach((key, value) -> {
-            System.out.println("$" + key);
-            System.out.println("name = " + value.getName());
-            System.out.println("return type = " + value.getReturnType().name);
-            System.out.println("p = " + value.getNumParameters());
-            System.out.println("memory struct = " + value.getMemoryStruct());
-            System.out.println("body = " + value.getBody());
-            System.out.println("----------------------");
+            System.out.println("[KEY=" + key + ", VALUE=" + value + "]");
+        });
+        System.out.println("--------------------------");
+    }
+
+    @Override
+    public void fillTable(DTE fuds) throws Exception {
+        if (fuds.token.type != TokenType.FuDS) {
+            throw new IllegalArgumentException("Expected FuDS, got " + fuds.token.type);
+        }
+
+        fuds.getFlattenedSequence().stream().map(f -> {
+            try {
+                return Fun.fromDTE(f);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).forEach(f -> {
+            try {
+                addFunction(f);
+            } catch (Exception e) {
+                System.out.println("ALREADY Exists");
+            }
         });
     }
 }

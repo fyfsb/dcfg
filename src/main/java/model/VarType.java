@@ -2,6 +2,8 @@ package model;
 
 import exceptions.typedef.TypeNotDefinedException;
 import table.TypeTable;
+import tree.DTE;
+import tree.TokenType;
 
 import java.util.List;
 import java.util.Map;
@@ -58,6 +60,37 @@ public class VarType {
                 .setTypeClass(TypeClass.STRUCT);
     }
 
+    public static Builder fromDTE(DTE tyD) {
+        if (tyD.token.type != TokenType.TyD) {
+            throw new IllegalArgumentException("Expected TyD, got " + tyD.token.type);
+        }
+
+        VarType.Builder builder;
+
+        DTE typeExpression = tyD.fson.bro;
+        DTE na = typeExpression.bro;
+
+        String name = na.getBorderWord();
+
+        if (typeExpression.fson.token.type == TokenType.STRUCT) {
+            DTE vads = typeExpression.fson.bro.bro;
+            List<List<String>> componentPairs = vads.extractComponentPairs();
+            builder = VarType.createStructTypeBuilder(componentPairs, name);
+        } else if (typeExpression.fson.bro.token.type == TokenType.POINTER_DEREF) {
+            String pTargetName = typeExpression.fson.token.value;
+            builder = VarType.createPointerTypeBuilder(pTargetName, name);
+        } else if (typeExpression.fson.bro.token.type == TokenType.L_BRACKET) {
+            String arrayCompTypeTargetName = typeExpression.fson.token.value;
+            int arraySize = Integer.parseInt(typeExpression.fson.bro.bro.getBorderWord());
+
+            builder = VarType.createArrayTypeBuilder(arrayCompTypeTargetName, name, arraySize);
+        } else {
+            throw new IllegalArgumentException();
+        }
+
+        return builder;
+    }
+
     public VarType getPointerTargetType() throws TypeNotDefinedException {
         return TypeTable.getInstance().getType(pointerTypeTargetName);
     }
@@ -68,7 +101,7 @@ public class VarType {
 
     public static class Builder {
 
-        public record Pair(String name, String typeName) {
+        public record Pair(String typeName, String name) {
         }
 
         private String name;
@@ -153,5 +186,17 @@ public class VarType {
         public List<Pair> getStructComponentPairs() {
             return structComponentPairs;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "VarType(" +
+                "name=" + name +
+                ", size=" + size +
+                ", typeClass=" + typeClass +
+                ", pointerTypeTarget=" + pointerTypeTargetName +
+                ", arrayComponentTypeTarget=" + arrayCompTypeTargetName +
+                ", arraySize=" + arraySize +
+                ", structComponents=" + structComponents;
     }
 }

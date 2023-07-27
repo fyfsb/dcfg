@@ -1,15 +1,26 @@
 package model;
 
+import exceptions.memory.MemoryStructException;
 import exceptions.typedef.TypeDefException;
 import exceptions.typedef.TypeNotDefinedException;
+import table.MemoryTable;
 import table.TypeTable;
 import tree.DTE;
+import tree.TokenType;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class Fun { // record of the function, function table
-    // function call, inline result destination address
+public class Fun {
+    @Override
+    public String toString() {
+        return "Function(name=" + name +
+                ", returnType= " + returnType.name +
+                ", memoryStruct= " + memoryStruct +
+                ", numParameters= " + numParameters +
+                ", body = " + body.toString().substring(0, 30) + "...";
+    }
+
     private final String name;
     private final VarType returnType; //
     // no rda
@@ -65,38 +76,42 @@ public class Fun { // record of the function, function table
         private DTE vads;
         private DTE body;
 
-        public Fun build() throws TypeDefException {
-            int numParameters = pads.getChildrenSize();
+        public Fun build() throws TypeDefException, MemoryStructException {
+
+            int numParameters;
+            if (pads == null) {
+                numParameters = 0;
+            } else {
+                numParameters = pads.getChildrenSize();
+            }
 
             List<List<String>> componentPairs = extractComponentPairs();
 
-            VarType.Builder structBuilder = VarType.createStructTypeBuilder(componentPairs, name);
-            VarType structType = TypeTable.getInstance().createStructType(structBuilder);
+            VarType.Builder structBuilder;
+            VarType structType = null;
+            Variable memoryStruct = null;
 
-            Variable memoryStruct = new Variable("$" + name, 0, structType, 0);
+            if (!componentPairs.isEmpty()) {
+                structBuilder = VarType.createStructTypeBuilder(componentPairs, name);
+                structType = TypeTable.getInstance().createStructType(structBuilder);
+                memoryStruct = new Variable("$" + name, 0, structType, 0);
+                MemoryTable.getInstance().addMemory(memoryStruct);
+            }
+
+
             return new Fun(name, returnType, memoryStruct, numParameters, body);
         }
 
         public List<List<String>> extractComponentPairs() {
             List<List<String>> result = new LinkedList<>();
 
-            extractComponentPairsTo(pads, result);
-            extractComponentPairsTo(vads, result);
-            return result;
-        }
-
-        public void extractComponentPairsTo(DTE dte, List<List<String>> compPairs) {
-            List<DTE> fseq = dte.getFlattenedSequence(); // List<VaD>
-            for (DTE vad : fseq) {
-                System.out.println(pads.fson.fson.token.value);
-
-                String type = vad.fson.token.value;
-                String name = vad.fson.bro.token.value;
-
-                assert type != null;
-                assert name != null;
-                compPairs.add(List.of(name, type));
+            if (pads != null) {
+                result.addAll(pads.extractComponentPairs());
             }
+            if (vads != null) {
+                result.addAll(vads.extractComponentPairs());
+            }
+            return result;
         }
 
         public String getName() {
@@ -135,5 +150,45 @@ public class Fun { // record of the function, function table
             this.body = body;
             return this;
         }
+    }
+
+    public static Fun fromDTE(DTE fud) throws Exception {
+        if (fud.token.type != TokenType.FuD) {
+            throw new IllegalArgumentException("Expected FuD, got " + fud.token.type);
+        }
+
+        String returnType = fud.fson.getBorderWord();
+        String name = fud.fson.bro.getBorderWord();
+        DTE pads = null;
+        DTE vads = null;
+        DTE body;
+
+        // getting to function parenthesis. If there are no parameters, current tree element is expected to be R_PAREN
+        // fud.fson = ty
+        // fud.fson.bro = na
+        // fud.fson.bro.bro = (
+        DTE nextElement = fud.fson.bro.bro.bro;
+        if (nextElement.token.type == TokenType.PaDS) {
+            pads = nextElement;
+            nextElement = nextElement.bro;
+        }
+
+        // getting to function closure. If there are no variable declarations, current tree element is expected to be <body>
+        nextElement = nextElement.bro.bro;
+        if (nextElement.token.type == TokenType.VaDS) {
+            vads = nextElement;
+            nextElement = nextElement.bro;
+        }
+
+        body = nextElement;
+
+        return new Builder()
+                .setName(name)
+                .setReturnType(returnType)
+                .setPads(pads)
+                .setVads(vads)
+                .setBody(body)
+                .build();
+
     }
 }

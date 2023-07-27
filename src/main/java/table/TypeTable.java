@@ -1,15 +1,15 @@
 package table;
 
 import exceptions.typedef.*;
+import exceptions.variable.VariableDuplicateNameException;
 import model.VarType;
 import model.Variable;
+import tree.DTE;
+import tree.TokenType;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class TypeTable {
+public class TypeTable implements Table {
     private final Map<String, VarType> table;
     private static TypeTable INSTANCE;
 
@@ -36,7 +36,7 @@ public class TypeTable {
         return !table.containsKey(name);
     }
 
-    private void checkTypeDefined(String name) throws TypeNotDefinedException {
+    public void checkTypeDefined(String name) throws TypeNotDefinedException {
         if (getType(name) == VarType.UNDEFINED_TYPE)
             throw new TypeNotDefinedException(name);
     }
@@ -80,16 +80,14 @@ public class TypeTable {
         Set<String> names = new HashSet<>();
         Map<String, Variable> components = new HashMap<>();
         int displacement = 0; // struct { int a, int c } x;
-        System.out.println(structBuilder.getStructComponentPairs());
         for (VarType.Builder.Pair pair : structBuilder.getStructComponentPairs()) {
-            System.out.println(pair.name());
 
             checkTypeDefined(pair.typeName());
             VarType type = getType(pair.typeName());
             if (names.contains(pair.name()))
-                throw new TypeDefDuplicateStructComponentNameException(structBuilder, pair.name());
+                throw new VariableDuplicateNameException(structBuilder.getName(), pair.name());
             names.add(pair.name());
-            components.put(pair.name(), new Variable(pair.name(), 0, type, displacement));
+            components.put(pair.name(), new Variable(pair.name(), 27, type, displacement));
             displacement += type.size;
         }
 
@@ -103,9 +101,28 @@ public class TypeTable {
         table.put("bool", VarType.BOOL_TYPE);
     }
 
+    @Override
+    public void fillTable(DTE tyds) throws Exception {
+        if (tyds.token.type != TokenType.TyDS) {
+            throw new IllegalArgumentException("Expected TyDS, got " + tyds.token.type);
+        }
+
+        // TyDS -> TyD1, TyD2
+        List<DTE> flattenedSequence = tyds.getFlattenedSequence();
+        for (DTE tyD : flattenedSequence) {
+            readTypeDefinition(tyD);
+        }
+    }
+
+    private void readTypeDefinition(DTE tyD) throws Exception {
+        VarType.Builder builder = VarType.fromDTE(tyD);
+        addType(builder);
+    }
+
     public void printTable() {
-        System.out.println("VarType(name, size, typeClass, pTarget, acTarget, aSize, sComps");
-        table.forEach((key, value) -> System.out.println(key + ", " + value.size + ", " + value.typeClass + ", " + value.pointerTypeTargetName +
-                ", " + value.arrayCompTypeTargetName + ", " + value.arraySize + ", " + value.structComponents));
+        System.out.println("\n\n------ TYPE TABLE ------");
+        table.forEach((key, value) -> System.out.println("[KEY=" + key + ", VALUE=" + value + "]"));
+        System.out.println("----------------------");
+
     }
 }

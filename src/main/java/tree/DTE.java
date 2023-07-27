@@ -18,6 +18,15 @@ public class DTE {
         this.bro = bro;
     }
 
+    public DTE(TreeToken token, DTE fson) {
+        this.token = token;
+        this.fson = fson;
+    }
+
+    public DTE(TreeToken token) {
+        this.token = token;
+    }
+
     public int getChildrenSize() {
         int result = 0;
         var curr = this;
@@ -28,14 +37,46 @@ public class DTE {
         return result;
     }
 
+    // XS -> X_1 ; (XS -> X_2 ; (..))
+    // flattened = [X_1, X_2, ... X_n]
     public List<DTE> getFlattenedSequence() {
         if (token == null) return null;
         List<DTE> result = new LinkedList<>();
 
-        for (DTE iter = this; iter != null; iter = iter.fson.bro) {
+        DTE iter = this;
+        while (iter != null) {
             result.add(iter.fson);
+
+            try {
+                iter = iter.fson.bro.bro;
+            } catch (Exception e) {
+                break;
+            }
         }
 
+        return result;
+    }
+
+    public String getBorderWord() {
+        if (fson == null) return token.value;
+        StringBuilder sb = new StringBuilder();
+        for (DTE dte = fson; dte != null; dte = dte.bro) {
+            sb.append(dte.getBorderWord());
+        }
+        return sb.toString();
+    }
+
+    public List<List<String>> extractComponentPairs() {
+        List<DTE> flattened = getFlattenedSequence();
+        List<List<String>> result = new LinkedList<>();
+        for (DTE dte : flattened) {
+            String type = dte.fson.token.value;
+            String name = dte.fson.bro.token.value;
+
+            assert type != null;
+            assert name != null;
+            result.add(List.of(type, name));
+        }
         return result;
     }
 

@@ -34,8 +34,16 @@ public class Variable {
         this.displacement = displacement;
     }
 
+    public int getDisplacement() {
+        return displacement;
+    }
+
+    public Variable getStructComponent(String name) {
+        return type.structComponents.get(name);
+    }
+
     @Override
     public String toString() {
-        return "Variable(name=" + name + ",ba=" + baseAddress + ",displ=" + displacement + ",typeClass=" + type.typeClass+",struct components=" + type.structComponents + ")";
+        return "Variable(name=" + name + ",ba=" + baseAddress + ",displ=" + displacement + ",typeClass=" + type.typeClass + ",struct components=" + type.structComponents + ")";
     }
 }

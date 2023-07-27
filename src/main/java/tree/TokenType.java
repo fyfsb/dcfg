@@ -49,7 +49,7 @@ public enum TokenType {
     // unary operators
     UNARY_MINUS, POINTER_DEREF, STRUCT_DOT, ADDRESS_OF, NOT,
     // types
-    TYPEDEF, INT, BOOL, CHAR, UINT,
+    TYPEDEF, INT, BOOL, CHAR, UINT, STRUCT,
 
     SEMI_COLON
 }
