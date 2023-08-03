@@ -39,7 +39,7 @@ public class Variable {
     }
 
     public Variable getStructComponent(String name) {
-        return type.structComponents.get(name);
+        return type.structComponents.getOrDefault(name, null);
     }
 
     @Override

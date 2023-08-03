@@ -43,15 +43,12 @@ public class DTE {
         if (token == null) return null;
         List<DTE> result = new LinkedList<>();
 
-        DTE iter = this;
-        while (iter != null) {
-            result.add(iter.fson);
-
-            try {
-                iter = iter.fson.bro.bro;
-            } catch (Exception e) {
-                break;
-            }
+        // XS -> XS; X
+        if (fson.bro == null) {
+            result.add(fson);
+        } else {
+            result.addAll(fson.getFlattenedSequence());
+            result.add(fson.bro.bro);
         }
 
         return result;

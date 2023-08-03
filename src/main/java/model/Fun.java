@@ -68,6 +68,11 @@ public class Fun {
         return body;
     }
 
+    public int getSize() {
+        int size = memoryStruct.getType().size;
+        return size + 4;
+    }
+
     public static class Builder {
         private String name;
         private VarType returnType;

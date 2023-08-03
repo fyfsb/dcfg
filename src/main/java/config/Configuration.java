@@ -1,6 +1,7 @@
 package config;
 
 import codegen.CodeGenerator;
+import exceptions.memory.MemoryStructException;
 import model.Fun;
 import model.Variable;
 import table.FunctionTable;
@@ -138,7 +139,11 @@ public class Configuration {
     }
 
     public FunctionCall callFunction(Fun function, Variable resultDestination) {
-        FunctionCall call = new FunctionCall(recursionDepth++, function, resultDestination);
+        int displacement = 0;
+        if (stack != null && !stack.isEmpty()) {
+            displacement = currentFunction().getSize() + top().getDisplacement();
+        }
+        FunctionCall call = new FunctionCall(recursionDepth++, function, resultDestination, displacement);
         stack.add(call);
         return call;
     }

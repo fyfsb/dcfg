@@ -44,7 +44,7 @@ public enum TokenType {
     TRUE, FALSE, IF, ELSE, WHILE, RETURN,
 
     // binary operators
-    EQ, DOUBLE_EQ, LESS, GREATER, LEQ, GEQ, BINARY_MINUS, MUL, DIV, AND, OR,
+    EQ, DOUBLE_EQ, LESS, GREATER, LEQ, GEQ, BINARY_MINUS, MUL, DIV, AND, OR, ADD,
 
     // unary operators
     UNARY_MINUS, POINTER_DEREF, STRUCT_DOT, ADDRESS_OF, NOT,
