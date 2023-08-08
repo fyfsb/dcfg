@@ -1,28 +1,90 @@
-import grammar.Grammar;
-import grammar.Token;
-import java.util.ArrayList;
-import java.util.List;
+import codegen.CodeGenerator;
+import config.Configuration;
+import table.FunctionTable;
+import table.MemoryTable;
+import table.TypeTable;
+import tree.DTE;
+import tree.DTEUtils;
+import tree.TokenType;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void fillTables(DTE program) throws Exception {
+        if (program.token.type != TokenType.Prog) {
+            throw new IllegalArgumentException("Expected Prog, got " + program.token.type);
+        }
 
-        List<String> compounds = List.of(
-                "typedef", "int", "bool", "char", "uint", "struct", "null", "true", "false",
-                "-1", ">=", "<=", "==", "!=", "&&", "||", "if", "else", "while", "new", "return"
-        );
+        DTE current = program.fson;
+        if (current.token.type == TokenType.TyDS) {
+            TypeTable.getInstance().fillTable(current);
+            current = current.bro.bro;
+        }
 
-        ArrayList<Token> compoundTerminalsC0 = new ArrayList<>(compounds.stream().map(Token::compoundFrom).toList());
+        if (current.token.type == TokenType.VaDS) {
+            MemoryTable.getInstance().fillTable(current);
+            current = current.bro.bro;
+        }
 
-        Grammar g = new Grammar(compoundTerminalsC0, "C:\\Users\\Student\\Desktop\\CFG\\New\\C0.txt");
+        if (current.token.type == TokenType.FuDS) {
+            FunctionTable.getInstance().fillTable(current);
+        }
+    }
 
-        g.print();
+    public static void main(String[] args) throws Exception {
 
         /*
-        for(Production p : g.getProductions()){
-            System.out.println(p.toString());
-        }
-        */
+        typedef struct { int a, int b } k;
 
+        k s;
+        int f() {
+            s.b = 1;
+        }
+         */
+
+        // get the test program
+        DTE dte = DTEUtils.getTestProgram();
+
+        // fill Type table, Memory table and Function table
+        fillTables(dte);
+
+        // print tables
+        TypeTable.getInstance().printTable();
+        MemoryTable.getInstance().printTable();
+        FunctionTable.getInstance().printTable();
+
+
+        // Initializing stack, empty heap, creating a function call for
+        // function "f" (later will be for main)
+        // setting the target function for CodeGenerator
+        Configuration.getInstance().initialize();
+
+        // Generating code for target function
+        CodeGenerator.getInstance().generateCode();
+
+        // printing generated instructions.
+        CodeGenerator.getInstance().printInstructions();
+
+
+        /*
+        created a structure just to pass a single <prog> DTE
+            - fill the type table
+            - fill the gm memory table
+            - fill all the function table entries
+        create some abstractions to pass the tree
+            - fseq - flattened sequence DTE -> XS -> X ; XS
+            - bw, Na -> DiLeS
+
+        Functions - rda, rd
+
+        Fun / FunctionCall -> st(main, 0, rda)
+
+
+        // Basic structure for c0 configurations (stack, heaptable, nh, rd, snapshots of the old configurations)
+
+
+              // Code Generation
+
+
+         */
     }
 }
