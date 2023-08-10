@@ -4,9 +4,12 @@ import exceptions.typedef.TypeNotDefinedException;
 import table.TypeTable;
 import tree.DTE;
 import tree.TokenType;
+import util.TypeUtils;
 
 import java.util.List;
 import java.util.Map;
+
+import static util.TypeUtils.checkTokenType;
 
 public class VarType {
     public enum TypeClass {
@@ -61,27 +64,28 @@ public class VarType {
     }
 
     public static Builder fromDTE(DTE tyD) {
-        if (tyD.token.type != TokenType.TyD) {
-            throw new IllegalArgumentException("Expected TyD, got " + tyD.token.type);
-        }
+        checkTokenType(tyD, "<TyD>");
 
         VarType.Builder builder;
 
-        DTE typeExpression = tyD.fson.bro;
-        DTE na = typeExpression.bro;
+        DTE typeExpression = tyD.getFirstSon().getBrother();
+        DTE na = typeExpression.getBrother();
 
         String name = na.getBorderWord();
 
-        if (typeExpression.fson.token.type == TokenType.STRUCT) {
-            DTE vads = typeExpression.fson.bro.bro;
+        System.out.println("TYPE_EXPRESSION WITH NAME " + name);
+        typeExpression.printTree();
+
+        if (typeExpression.getFirstSon().isType("struct")) {
+            DTE vads = typeExpression.getFirstSon().getBrother().getBrother();
             List<List<String>> componentPairs = vads.extractComponentPairs();
             builder = VarType.createStructTypeBuilder(componentPairs, name);
-        } else if (typeExpression.fson.bro.token.type == TokenType.POINTER_DEREF) {
-            String pTargetName = typeExpression.fson.token.value;
+        } else if (typeExpression.getFirstSon().getBrother().isType("`")) {
+            String pTargetName = typeExpression.getFirstSon().getBorderWord();
             builder = VarType.createPointerTypeBuilder(pTargetName, name);
-        } else if (typeExpression.fson.bro.token.type == TokenType.L_BRACKET) {
-            String arrayCompTypeTargetName = typeExpression.fson.token.value;
-            int arraySize = Integer.parseInt(typeExpression.fson.bro.bro.getBorderWord());
+        } else if (typeExpression.getFirstSon().getBrother().isType("[")) {
+            String arrayCompTypeTargetName = typeExpression.getFirstSon().getBorderWord();
+            int arraySize = Integer.parseInt(typeExpression.getFirstSon().getBrother().getBrother().getBorderWord());
 
             builder = VarType.createArrayTypeBuilder(arrayCompTypeTargetName, name, arraySize);
         } else {

@@ -6,8 +6,11 @@ import model.VarType;
 import model.Variable;
 import tree.DTE;
 import tree.TokenType;
+import util.TypeUtils;
 
 import java.util.*;
+
+import static util.TypeUtils.checkTokenType;
 
 public class TypeTable implements Table {
     private final Map<String, VarType> table;
@@ -45,6 +48,13 @@ public class TypeTable implements Table {
         // check names distinct
         if (!isNameDistinct(builder.getName()))
             throw new TypeDefNameAlreadyExistsException(builder);
+
+        /*
+            Temporarily adding `_` to the type name,
+            Current grammar allows using non-primitive types
+            in form of <Na>_
+         */
+        builder.setName(builder.getName() + "_");
 
         // case split
         switch (builder.getTypeClass()) {
@@ -103,9 +113,7 @@ public class TypeTable implements Table {
 
     @Override
     public void fillTable(DTE tyds) throws Exception {
-        if (tyds.token.type != TokenType.TyDS) {
-            throw new IllegalArgumentException("Expected TyDS, got " + tyds.token.type);
-        }
+        checkTokenType(tyds, "<TyDS>");
 
         // TyDS -> TyD1, TyD2
         List<DTE> flattenedSequence = tyds.getFlattenedSequence();

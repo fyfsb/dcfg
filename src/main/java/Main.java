@@ -1,36 +1,75 @@
 import codegen.CodeGenerator;
 import config.Configuration;
+import dk.DK1;
+import tree.DTE;
+import grammar.Grammar;
 import table.FunctionTable;
 import table.MemoryTable;
 import table.TypeTable;
-import tree.DTE;
-import tree.DTEUtils;
 import tree.TokenType;
+import util.TypeUtils;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class Main {
 
     public static void fillTables(DTE program) throws Exception {
-        if (program.token.type != TokenType.Prog) {
-            throw new IllegalArgumentException("Expected Prog, got " + program.token.type);
-        }
+        TypeUtils.checkTokenType(program, "<prog>");
 
-        DTE current = program.fson;
-        if (current.token.type == TokenType.TyDS) {
+        DTE current = program.getFirstSon();
+        if (current.getLabel().getContent().equals("<TyDS>")) {
             TypeTable.getInstance().fillTable(current);
-            current = current.bro.bro;
+            current = current.getBrother().getBrother();
         }
 
-        if (current.token.type == TokenType.VaDS) {
+        if (current.isType("<VaDS>")) {
             MemoryTable.getInstance().fillTable(current);
-            current = current.bro.bro;
+            current = current.getBrother().getBrother();
         }
 
-        if (current.token.type == TokenType.FuDS) {
+        if (current.isType("<FuDS>")) {
             FunctionTable.getInstance().fillTable(current);
         }
     }
 
     public static void main(String[] args) throws Exception {
+
+        String grammarFilePath = "C:\\Users\\Chucha\\Desktop\\playground\\dcfg\\src\\main\\java\\grammar\\Grammar.txt";
+        String terminalsFilePath = "C:\\Users\\Chucha\\Desktop\\playground\\dcfg\\src\\main\\java\\grammar\\Terminals.txt";
+
+        Grammar g = new Grammar(grammarFilePath, terminalsFilePath);
+
+        DK1 dk1 = new DK1(g);
+
+        System.out.println("number of states: " + dk1.getStates().size());
+        System.out.println("-----------------------");
+        System.out.println("DK1 test passed = " + dk1.Test());
+        System.out.println("-----------------------");
+
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            System.out.println("code:");
+            String code = reader.readLine();
+            try {
+                DTE parsedTree = dk1.parseString(code);
+//                System.out.println(parsedTree);
+                parsedTree.printTree();
+
+                fillTables(parsedTree);
+                TypeTable.getInstance().printTable();
+                MemoryTable.getInstance().printTable();
+                FunctionTable.getInstance().printTable();
+
+                Configuration.getInstance().initialize();
+                CodeGenerator.getInstance().generateCode();
+                CodeGenerator.getInstance().printInstructions();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         /*
         typedef struct { int a, int b } k;
@@ -42,27 +81,27 @@ public class Main {
          */
 
         // get the test program
-        DTE dte = DTEUtils.getTestProgram();
+//        DTE dte = DTEUtils.getTestProgram();
 
         // fill Type table, Memory table and Function table
-        fillTables(dte);
+//        fillTables(dte);
 
         // print tables
-        TypeTable.getInstance().printTable();
-        MemoryTable.getInstance().printTable();
-        FunctionTable.getInstance().printTable();
+//        TypeTable.getInstance().printTable();
+//        MemoryTable.getInstance().printTable();
+//        FunctionTable.getInstance().printTable();
 
 
         // Initializing stack, empty heap, creating a function call for
         // function "f" (later will be for main)
         // setting the target function for CodeGenerator
-        Configuration.getInstance().initialize();
+//        Configuration.getInstance().initialize();
 
         // Generating code for target function
-        CodeGenerator.getInstance().generateCode();
+//        CodeGenerator.getInstance().generateCode();
 
         // printing generated instructions.
-        CodeGenerator.getInstance().printInstructions();
+//        CodeGenerator.getInstance().printInstructions();
 
 
         /*

@@ -1,136 +1,123 @@
 package grammar;
 
-import util.Utils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
 
 public class Grammar {
-    //Attributes
-    private Token start;
-    private ArrayList<Token> terminals;
-    private ArrayList<Token> compoundTerminals;
-    private ArrayList<Token> nonterminals;
-    private ArrayList<Production> productions;
-    //Constructors
-    public Grammar() {
-        start = new Token();
-        terminals = new ArrayList<>();
-        compoundTerminals = new ArrayList<>();
-        nonterminals = new ArrayList<>();
+
+    private Symbol start;
+    private final HashSet<Symbol> terminals;
+    private final HashSet<Symbol> nonterminals;
+    private final List<Production> productions;
+
+    public Grammar(String grammarFilePath, String terminalsFilePath) throws FileNotFoundException {
+        terminals = new HashSet<>();
+        nonterminals = new HashSet<>();
         productions = new ArrayList<>();
-    }
-    public Grammar(ArrayList<Token> compoundTerminals, String filePath){
-        //Read the grammar from the text file
-        Scanner in = new Scanner(System.in);
-        try {
-            in = new Scanner(new File(filePath));
+
+        // Read Terminals
+        try (Scanner in = new Scanner(new File(terminalsFilePath))) {
+            readTerminals(in);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            throw new FileNotFoundException("Terminals file not found: " + terminalsFilePath);
         }
-        //Add compound terminals
-        this.compoundTerminals = compoundTerminals;
-        //Add productions
-        productions = new ArrayList<>();
-        addProductions(in);
-        //Add start
-        start = productions.get(0).getLeft();
-        //Add nonterminals
-        nonterminals = new ArrayList<>();
-        addNonterminals();
-        //Decompose the right side of the productions (translate unknowns to terminals and nonterminals)
-        for(Production p : productions){
-            Utils.decomposeUnknownStrings(p.getRight(), this);
+
+        //Read Nonterminals
+        try (Scanner in = new Scanner(new File(grammarFilePath))) {
+            readNonterminals(in);
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Grammar file for Nonterminals not found: " + grammarFilePath);
         }
-        //Add terminals
-        terminals = new ArrayList<>();
-        addTerminals();
+
+        // Read Productions + Initialize The Start Symbol
+        try (Scanner in = new Scanner(new File(grammarFilePath))) {
+            readProductions(in);
+
+            if (!productions.isEmpty()) {
+                start = productions.get(0).getLeft();
+            }
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Grammar file not found: " + grammarFilePath);
+        }
+
     }
-    //Functions
-    private void addProductions(Scanner in) {
-        while(in.hasNext()) {
-            String string = in.nextLine();
-            ArrayList<String> parts = Utils.splitBySubstring(string, " -> ");
-            if(parts.size() < 2){
-                System.out.println("Grammar.addProductions error parts size < 2");
-                return;
-            }
-            for(String right : Utils.splitBySubstring(parts.get(1), " | ")) {
-                productions.add(new Production(parts.get(0) + " -> " + right));
-            }
+
+    private void readTerminals(Scanner in) {
+        while (in.hasNext()) {
+            final String terminal = in.nextLine().replaceAll("\\s", "");
+            terminals.add(new Symbol(terminal, Symbol.Type.Terminal));
         }
+        terminals.add(new Symbol("|", Symbol.Type.Terminal));
     }
-    private void addNonterminals() {
-        HashSet<String> check = new HashSet<>();
-        for(Production p : this.productions) {
-            if(!check.contains(p.getLeft().getString())) {
-                this.nonterminals.add(p.getLeft());
-                check.add(p.getLeft().getString());
-            }
+
+    private void readNonterminals(Scanner in) {
+        while (in.hasNext()) {
+            String str = in.nextLine();
+            String noWhitespace = str.replaceAll("\\s", "");
+            String[] parts = noWhitespace.split("->");
+            nonterminals.add(new Symbol(parts[0], Symbol.Type.Nonterminal));
         }
     }
-    private void addTerminals(){
-        HashSet<String> check = new HashSet<>();
-        for(Production p : this.productions){
-            for(Token t : p.getRight()){
-                if(t.getType() == Type.TERMINAL && !check.contains(t.getString())){
-                    this.terminals.add(t);
-                    check.add(t.getString());
+
+    private void readProductions(Scanner in) {
+        while (in.hasNext()) {
+            final Production production = new Production(in.nextLine(), this);
+
+            ArrayList<Symbol> right = new ArrayList<>(); // Split Production.right by "|"
+            for (Symbol symbol : production.getRight()) {
+                if (symbol.equals(new Symbol("|", Symbol.Type.Terminal))) {
+                    productions.add(new Production(production.getLeft(), right));
+                    right = new ArrayList<>();
+                } else {
+                    right.add(symbol);
                 }
             }
         }
     }
-    public void print(){
-        System.out.println("Start Symbol:");
-        System.out.println(this.start.getString());
-        System.out.println("Terminals:");
-        for(Token t : terminals){
-            System.out.println(t.getString());
+
+    @Override
+    public String toString() {
+        StringBuilder output = new StringBuilder();
+
+        output.append("Start:\n");
+        output.append(this.start).append("\n");
+
+        output.append("Terminals:\n");
+        for (Symbol s : this.terminals) {
+            output.append(s).append("\n");
         }
-        System.out.println("Compound Terminals:");
-        for(Token t : compoundTerminals){
-            System.out.println(t.getString());
+
+        output.append("Nonterminals:\n");
+        for (Symbol s : this.nonterminals) {
+            output.append(s).append("\n");
         }
-        System.out.println("Nonterminals:");
-        for(Token t : nonterminals){
-            System.out.println(t.getString());
+
+        output.append("Productions:\n");
+        for (Production p : this.productions) {
+            output.append(p).append("\n");
         }
-        for(Production p : this.productions){
-            System.out.println(p.getLeft() + " -> " + p.getRight());
-        }
+
+        return output.toString();
     }
-    //Getters and Setters
-    public Token getStart() {
+
+    public Symbol getStart() {
         return start;
     }
-    public void setStart(Token start) {
-        this.start = start;
-    }
-    public ArrayList<Token> getTerminals() {
+
+    public HashSet<Symbol> getTerminals() {
         return terminals;
     }
-    public void setTerminals(ArrayList<Token> terminals) {
-        this.terminals = terminals;
-    }
-    public ArrayList<Token> getNonterminals() {
+
+    public HashSet<Symbol> getNonterminals() {
         return nonterminals;
     }
-    public void setNonterminals(ArrayList<Token> nonterminals) {
-        this.nonterminals = nonterminals;
-    }
-    public ArrayList<Production> getProductions() {
+
+    public List<Production> getProductions() {
         return productions;
     }
-    public void setProductions(ArrayList<Production> productions) {
-        this.productions = productions;
-    }
-    public ArrayList<Token> getCompoundTerminals() {
-        return compoundTerminals;
-    }
-    public void setCompoundTerminals(ArrayList<Token> compoundTerminals) {
-        this.compoundTerminals = compoundTerminals;
-    }
+
 }

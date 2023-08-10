@@ -1,65 +1,82 @@
 package tree;
 
-import grammar.TreeToken;
+import dk.Item;
+import grammar.Symbol;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class DTE {
-    public TreeToken token;
-    public DTE father;
-    public DTE fson;
-    public DTE bro;
 
-    public DTE(TreeToken token, DTE father, DTE fson, DTE bro) {
-        this.token = token;
-        this.father = father;
-        this.fson = fson;
-        this.bro = bro;
+    private final Symbol label;
+    private DTE father;
+    private DTE firstSon;
+    private DTE brother;
+
+    public DTE(Symbol label) {
+        this.label = label;
     }
 
-    public DTE(TreeToken token, DTE fson) {
-        this.token = token;
-        this.fson = fson;
-    }
+    public static ArrayList<DTE> updateTheParseTree(ArrayList<DTE> parseTree, Item handle) {
 
-    public DTE(TreeToken token) {
-        this.token = token;
-    }
+        Symbol parentSymbol = handle.getProduction().getLeft();
+        int rightIndex = handle.getDotIndex();
+        int leftIndex = rightIndex - handle.getProduction().getRight().size();
 
-    public int getChildrenSize() {
-        int result = 0;
-        var curr = this;
-        while (curr != null && curr.fson != null) {
-            result++;
-            curr = curr.fson.bro;
+        // Make Brothers
+        for (int i = leftIndex; i < rightIndex - 1; i++) {
+            parseTree.get(i).setBrother(parseTree.get(i + 1));
         }
-        return result;
+
+        // Create father and make connection
+        DTE father = new DTE(parentSymbol);
+        father.setFirstSon(parseTree.get(leftIndex));
+        for (int i = leftIndex; i < rightIndex; i++) {
+            parseTree.get(i).setFather(father);
+        }
+
+        // Erase Children from the parse tree array and put father in their place
+        ArrayList<DTE> newParseTree = new ArrayList<>();
+
+        for (int i = 0; i < leftIndex; i++) {
+            newParseTree.add(parseTree.get(i));
+        }
+        newParseTree.add(father);
+        for (int i = rightIndex; i < parseTree.size(); i++) {
+            newParseTree.add(parseTree.get(i));
+        }
+
+        return newParseTree;
     }
 
-    // XS -> X_1 ; (XS -> X_2 ; (..))
-    // flattened = [X_1, X_2, ... X_n]
+    public boolean isType(String type) {
+        return getLabel().getContent().equals(type);
+    }
+
     public List<DTE> getFlattenedSequence() {
-        if (token == null) return null;
+        if (label == null) return null;
         List<DTE> result = new LinkedList<>();
 
         // XS -> XS; X
-        if (fson.bro == null) {
-            result.add(fson);
+        if (firstSon.brother == null) {
+            result.add(firstSon);
         } else {
-            result.addAll(fson.getFlattenedSequence());
-            result.add(fson.bro.bro);
+            result.addAll(firstSon.getFlattenedSequence());
+            result.add(firstSon.brother.brother);
         }
 
         return result;
     }
 
     public String getBorderWord() {
-        if (fson == null) return token.value;
+        if (label.isTerminal()) return labelContent();
         StringBuilder sb = new StringBuilder();
-        for (DTE dte = fson; dte != null; dte = dte.bro) {
+        for (DTE dte = firstSon; dte != null; dte = dte.brother) {
             sb.append(dte.getBorderWord());
         }
+
         return sb.toString();
     }
 
@@ -67,25 +84,100 @@ public class DTE {
         List<DTE> flattened = getFlattenedSequence();
         List<List<String>> result = new LinkedList<>();
         for (DTE dte : flattened) {
-            String type = dte.fson.token.value;
-            String name = dte.fson.bro.token.value;
+            System.out.println("EXTRACT_COMPONENT_PAIRS");
+            if (dte.isType(";")) {
+                System.out.println("skipping semicolon");
+                dte = dte.brother;
+            }
+            dte.printTree();
+            String type = dte.getFirstSon().getBorderWord();
+            String name = dte.getFirstSon().getBrother().getBorderWord();
 
-            assert type != null;
-            assert name != null;
             result.add(List.of(type, name));
+            System.out.println(result);
+        }
+        return result;
+    }
+
+    public int getChildrenSize() {
+        int result = 0;
+        var curr = this;
+        //
+        while (curr != null && curr.firstSon != null) {
+            result++;
+            curr = curr.firstSon.brother;
         }
         return result;
     }
 
     @Override
     public String toString() {
+
         StringBuilder sb = new StringBuilder();
-        sb.append("DTE(token=")
-                .append(token)
-                .append(", father=").append(father)
-                .append(", fson=").append(fson)
-                .append(", bro=").append(bro)
-                .append(")");
+
+        if (label == null) return "";
+        if (label.isTerminal()) return labelContent();
+
+        sb.append(labelContent());
+        for (DTE dte = firstSon; dte != null; dte = dte.brother) {
+            sb.append("\n\t|- ").append(dte);
+        }
         return sb.toString();
+
+    }
+
+    public void printTree() {
+        printTree(0, false);
+    }
+
+    private void printTree(int level, boolean isLast) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append((isLast ? "    " : "│   ").repeat(Math.max(0, level - 1)));
+        if (level > 0) {
+            builder.append(isLast ? "└── " : "├── ");
+        }
+
+        System.out.println(builder + labelContent());
+        if (firstSon != null) {
+            firstSon.printTree(level + 1, brother == null);
+        }
+
+        if (brother != null) {
+            brother.printTree(level, false);
+        }
+    }
+
+    public Symbol getLabel() {
+        return label;
+    }
+
+    public DTE getFather() {
+        return father;
+    }
+
+    private void setFather(DTE father) {
+        this.father = father;
+    }
+
+    public DTE getFirstSon() {
+        return firstSon;
+    }
+
+    private void setFirstSon(DTE firstSon) {
+        this.firstSon = firstSon;
+    }
+
+    public DTE getBrother() {
+        return brother;
+    }
+
+    private void setBrother(DTE brother) {
+        this.brother = brother;
+    }
+
+    public String labelContent() {
+        if (label == null) return null;
+        return label.getContent();
     }
 }

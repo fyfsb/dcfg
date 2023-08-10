@@ -6,9 +6,12 @@ import exceptions.function.FunctionNotFoundException;
 import model.Fun;
 import tree.DTE;
 import tree.TokenType;
+import util.TypeUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static util.TypeUtils.checkTokenType;
 
 public class FunctionTable implements Table {
     private final Map<String, Fun> table;
@@ -48,9 +51,7 @@ public class FunctionTable implements Table {
 
     @Override
     public void fillTable(DTE fuds) throws Exception {
-        if (fuds.token.type != TokenType.FuDS) {
-            throw new IllegalArgumentException("Expected FuDS, got " + fuds.token.type);
-        }
+        checkTokenType(fuds, "<FuDS>");
 
         fuds.getFlattenedSequence().stream().map(f -> {
             try {

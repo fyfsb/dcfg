@@ -149,13 +149,17 @@ public class Configuration {
     }
 
     public void initialize() throws Exception {
-        globalMemory = MemoryTable.getInstance().getMemory("gm");
+        try {
+            globalMemory = MemoryTable.getInstance().getMemory("$gm");
+        } catch (MemoryStructException e) {
+            System.out.println(e);
+        }
         stack = new Stack<>();
         heapTable = new HashMap<>();
 
 
         // main
-        Fun mainFunction = FunctionTable.getInstance().getFunction("f");
+        Fun mainFunction = FunctionTable.getInstance().getFunction("main");
         FunctionCall mainCall = callFunction(mainFunction, null);
 
         CodeGenerator.getInstance().setProgram(mainCall);

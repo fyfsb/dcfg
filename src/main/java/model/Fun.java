@@ -6,7 +6,7 @@ import exceptions.typedef.TypeNotDefinedException;
 import table.MemoryTable;
 import table.TypeTable;
 import tree.DTE;
-import tree.TokenType;
+import util.TypeUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class Fun {
                 ", returnType= " + returnType.name +
                 ", memoryStruct= " + memoryStruct +
                 ", numParameters= " + numParameters +
-                ", body = " + body.toString().substring(0, 30) + "...";
+                ", body = " + body.toString();
     }
 
     private final String name;
@@ -158,12 +158,10 @@ public class Fun {
     }
 
     public static Fun fromDTE(DTE fud) throws Exception {
-        if (fud.token.type != TokenType.FuD) {
-            throw new IllegalArgumentException("Expected FuD, got " + fud.token.type);
-        }
+        TypeUtils.checkTokenType(fud, "<FuD>");
 
-        String returnType = fud.fson.getBorderWord();
-        String name = fud.fson.bro.getBorderWord();
+        String returnType = fud.getFirstSon().getBorderWord();
+        String name = fud.getFirstSon().getBrother().getBorderWord();
         DTE pads = null;
         DTE vads = null;
         DTE body;
@@ -172,20 +170,22 @@ public class Fun {
         // fud.fson = ty
         // fud.fson.bro = na
         // fud.fson.bro.bro = (
-        DTE nextElement = fud.fson.bro.bro.bro;
-        if (nextElement.token.type == TokenType.PaDS) {
+        DTE nextElement = fud.getFirstSon().getBrother().getBrother().getBrother();
+        if (nextElement.isType("<PaDS>")) {
             pads = nextElement;
-            nextElement = nextElement.bro;
+            nextElement = nextElement.getBrother();
         }
 
         // getting to function closure. If there are no variable declarations, current tree element is expected to be <body>
-        nextElement = nextElement.bro.bro;
-        if (nextElement.token.type == TokenType.VaDS) {
+        nextElement = nextElement.getBrother().getBrother();
+        if (nextElement.isType("<VaDS>")) {
             vads = nextElement;
-            nextElement = nextElement.bro;
+            nextElement = nextElement.getBrother();
         }
 
         body = nextElement;
+        System.out.println("BUILDING FUNCTION");
+        body.printTree();
 
         return new Builder()
                 .setName(name)

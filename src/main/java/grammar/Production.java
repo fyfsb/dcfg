@@ -1,52 +1,78 @@
 package grammar;
 
-import util.Utils;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Production {
-    //Attributes
-    private Token left;
-    private ArrayList<Token> right;
-    //Constructors
-    public Production(){
-        left = new Token();
-        right = new ArrayList<>();
-    }
-    public Production(Token left, ArrayList<Token> right){
+
+    private final Symbol left;
+    private final ArrayList<Symbol> right;
+    public static Production PROG_PROD = new Production(
+            new Symbol("<prog>", Symbol.Type.Nonterminal),
+            new ArrayList<>(List.of(
+                    new Symbol("<FuD>", Symbol.Type.Nonterminal)
+            ))
+    );
+
+    public Production(final Symbol left, final ArrayList<Symbol> right) {
         this.left = left;
         this.right = right;
     }
-    public Production(String string){
-        //Decompose the production by " -> "
-        ArrayList<String> parts = Utils.splitBySubstring(string, " -> ");
-        if(parts.size() < 2){
-            System.out.println("Production.constructor error ' -> ' not found ");
-            return;
+
+    public Production(final String str, Grammar g) {
+
+        String noWhitespace = str.replaceAll("\\s", "");
+        String[] parts = noWhitespace.split("->");
+
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid production string. Expected format: 'left -> right'");
         }
-        this.left = new Token(parts.get(0), Type.NONTERMINAL);
-        this.right = new ArrayList<>(List.of(new Token(parts.get(1), Type.UNKNOWN)));
-    }
-    //Functions
-    public String toString(){
-        StringBuilder sb = new StringBuilder(left.getString() + " -> ");
-        for(Token t : right){
-            sb.append(t.getString());
+
+        left = new Symbol(parts[0], Symbol.Type.Nonterminal);
+
+        right = new ArrayList<>();
+        int index = 0;
+        while (index < parts[1].length()) {
+            Symbol currentSymbol = Symbol.firstSymbolInString(parts[1].substring(index), g);
+            right.add(currentSymbol);
+            assert currentSymbol != null;
+            index += currentSymbol.length();
         }
-        return sb.toString();
+
+        right.add(new Symbol("|", Symbol.Type.Terminal)); // Make decomposition by "|" easier
     }
-    //Getters and Setters
-    public Token getLeft() {
+
+    @Override
+    public String toString() {
+        return this.left + " -> " + this.right;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Production production = (Production) obj;
+
+        return left.equals(production.getLeft()) && right.equals(production.getRight());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = right.hashCode();
+        result = result * 31 + left.hashCode();
+        return result;
+    }
+
+    public Symbol getLeft() {
         return left;
     }
-    public void setLeft(Token left) {
-        this.left = left;
-    }
-    public ArrayList<Token> getRight() {
+
+    public ArrayList<Symbol> getRight() {
         return right;
     }
-    public void setRight(ArrayList<Token> right) {
-        this.right = right;
-    }
+
 }

@@ -7,7 +7,6 @@ import model.VarType;
 import model.Variable;
 import table.MemoryTable;
 import tree.DTE;
-import tree.TokenType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,23 +37,23 @@ public class CodeGenerator {
 
     private void generateCodeForFunctionCall(FunctionCall call) throws Exception {
         DTE body = call.getFunction().getBody();
-        if (body.token.type != TokenType.Body) {
-            throw new IllegalArgumentException("Expected <body>, got " + body.token.type);
-        }
+        checkTokenType(body, "<body>");
 
-        if (body.fson.token.type != TokenType.StS) {
+        System.out.println("BODY");
+        body.printTree();
+
+        if (!body.getFirstSon().isType("<StS>")) {
             // TODO()
-            throw new IllegalArgumentException("Not implemented yet.");
+            //throw new IllegalArgumentException("Not implemented yet.");
+            System.out.println("not implemented yet!");
         } else {
-            generateCodeForStatements(body.fson);
+            generateCodeForStatements(body.getFirstSon());
         }
 
     }
 
     private void generateCodeForStatements(DTE sts) throws Exception {
-        if (sts.token.type != TokenType.StS) {
-            throw new IllegalArgumentException("Expected StS, got " + sts.token.type);
-        }
+        checkTokenType(sts, "<StS>");
 
         List<DTE> statements = sts.getFlattenedSequence();
         for (DTE statement : statements) {
@@ -63,13 +62,11 @@ public class CodeGenerator {
     }
 
     private void generateSt(DTE st) throws Exception {
-        if (st.token.type != TokenType.St) {
-            throw new IllegalArgumentException("Expected St, got " + st.token.type);
-        }
+        checkTokenType(st, "<St>");
 
         // <id> = <E>
-        if (st.fson.bro.token.type == TokenType.EQ) {
-            generateAssignment(st.fson, st.fson.bro.bro);
+        if (st.getFirstSon().getBrother().isType("=")) {
+            generateAssignment(st.getFirstSon(), st.getFirstSon().getBrother().getBrother());
         }
     }
 
@@ -89,46 +86,20 @@ public class CodeGenerator {
         // s.b = 1
         //
         // st.cf
-        getVarFromId(id, MemoryTable.getInstance().getMemory("gm"), null);
+        VariableRegister varRegId = evaluateId(id);
+        VariableRegister varRegValue = evaluateExpression(value);
 
-        // dereference
-        instructionsList.add(Instruction.lw(2, 2, 0)); // ba -> variable
-        instructionsList.add(Instruction.sw(expRegister, 2, 0));
+        String instr = Instruction.sw(varRegValue.reg(), varRegId.reg(), 0);
+        instructionsList.add(instr);
+        Configuration.getInstance().freeRegister(varRegValue.reg());
+
+//        getVarFromId(id, MemoryTable.getInstance().getMemory("$gm"), null);
+//
+//        // dereference
+//        instructionsList.add(Instruction.lw(2, 2, 0)); // ba -> variable
+//        instructionsList.add(Instruction.sw(expRegister, 2, 0));
 
         Configuration.getInstance().freeRegister(expRegister);
-    }
-
-    private Variable getVarFromId(DTE id, Variable memory, Integer reg) {
-        if (id == null || memory == null || id.fson == null) return null;
-
-        // s.b
-        // $2 = ba(s.b)
-
-        // case split id -> Na | id.Na  (only these 2 for now)
-        if (id.fson.token.type == TokenType.Na || id.token.type == TokenType.Na) {
-
-            String varName;
-            if (id.fson.token.type == TokenType.Na)
-                varName = id.fson.getBorderWord();
-            else varName = id.getBorderWord();
-
-            Variable bindedVariable = memory.getStructComponent(varName);
-            int register = Configuration.getInstance().getFirstFreeRegister();
-            int rs = reg == null ? memory.getBaseAddress() : reg;
-            int displacement = bindedVariable.getDisplacement();
-
-            instructionsList.add(Instruction.addi(register, rs, displacement)); // addi $2 $27 4
-            Configuration.getInstance().freeRegister(register);
-            return bindedVariable;
-        }
-
-        // otherwise we have id.Na
-
-        DTE structId = id.fson;
-        DTE compNa = structId.bro.bro;
-
-        Variable structVar = getVarFromId(structId, memory, null);
-        return getVarFromId(compNa, structVar, 2);
     }
 
     public void printInstructions() {
@@ -138,7 +109,7 @@ public class CodeGenerator {
     }
 
     public VariableRegister evaluateNumberConstant(DTE constant) {
-        checkTokenType(constant, TokenType.C);
+        checkTokenType(constant, "<C>");
 
         int register = Configuration.getInstance().getFirstFreeRegister();
         int value = Integer.parseInt(constant.getBorderWord());
@@ -150,14 +121,14 @@ public class CodeGenerator {
     }
 
     public VariableRegister evaluateExpression(DTE expression) throws Exception {
-        checkTokenType(expression, TokenType.E, TokenType.T, TokenType.F);
+        checkTokenType(expression, "<E>", "<T>", "<F>");
 
         List<DTE> flattened = expression.getFlattenedSequence();
 
         switch (flattened.size()) {
             case 3 -> { // e' binOp e'' OR (E)
                 // handle (E) separately
-                if (flattened.get(0).token.type == TokenType.L_PAREN) {
+                if (flattened.get(0).isType("(")) {
                     return evaluateExpression(flattened.get(1));
                 }
 
@@ -185,13 +156,13 @@ public class CodeGenerator {
 
             case 1 -> { // T | F | id | C
                 DTE dte = flattened.get(0);
-                checkTokenType(dte, TokenType.T, TokenType.F, TokenType.F, TokenType.C);
+                checkTokenType(dte, "<T>", "<F>", "<id>", "<C>");
 
-                if (dte.token.type == TokenType.T || dte.token.type == TokenType.F) {
+                if (dte.isType("<T>") || dte.isType("<F>")) {
                     return evaluateExpression(dte);
                 }
 
-                if (dte.token.type == TokenType.Id) {
+                if (dte.isType("<id>")) {
                     return evaluateId(dte);
                 }
 
@@ -202,11 +173,12 @@ public class CodeGenerator {
     }
 
     public VariableRegister evaluateBinaryOperation(int left, int right, DTE binOp) {
-        String instr = switch (binOp.token.type) {
-            case ADD -> Instruction.add(left, left, right);
-            case BINARY_MINUS -> Instruction.sub(left, left, right);
+        String instr = switch (binOp.labelContent()) {
+            case "+" -> Instruction.add(left, left, right);
+            case "-" -> Instruction.sub(left, left, right);
 
-            default -> throw new IllegalArgumentException("Expected binary operator, got " + binOp.token.type);
+            // TODO(add other operations)
+            default -> throw new IllegalArgumentException("Expected binary operator, got " + binOp.labelContent());
         };
 
         instructionsList.add(instr);
@@ -215,17 +187,17 @@ public class CodeGenerator {
     }
 
     public VariableRegister evaluateId(DTE id) throws Exception {
-        checkTokenType(id, TokenType.Id);
+        checkTokenType(id, "<id>");
 
         List<DTE> flattened = id.getFlattenedSequence();
 
         // id -> Na
-        if (flattened.get(0).token.type == TokenType.Na) {
-            return bindVariableName(id.fson);
+        if (flattened.get(0).isType("<Na>")) {
+            return bindVariableName(id.getFirstSon());
         }
 
         // id -> id.Na
-        if (flattened.get(1).token.type == TokenType.STRUCT_DOT) {
+        if (flattened.get(1).isType(".")) {
 //            int struct = evaluateId(flattened.get(0));
             VariableRegister structReg = evaluateId(flattened.get(0));
             String compName = flattened.get(2).getBorderWord();
@@ -249,7 +221,7 @@ public class CodeGenerator {
         }
 
         // id -> id[E]
-        if (flattened.get(1).token.type == TokenType.L_BRACKET) {
+        if (flattened.get(1).isType("[")) {
             VariableRegister array = evaluateId(flattened.get(0));
             VariableRegister index = evaluateExpression(flattened.get(2));
 
@@ -270,7 +242,7 @@ public class CodeGenerator {
         }
 
         // id -> id*
-        if (flattened.get(1).token.type == TokenType.POINTER_DEREF) {
+        if (flattened.get(1).isType("`")) {
             VariableRegister pointer = evaluateId(flattened.get(0));
 
             // create instruction lw j j 0 ~ deref
@@ -284,15 +256,18 @@ public class CodeGenerator {
     }
 
     public VariableRegister bindVariableName(DTE na) throws Exception {
-        checkTokenType(na, TokenType.Na);
+        checkTokenType(na, "<Na>");
 
         String name = na.getBorderWord();
-        Variable bindedVariable;
+        Variable bindedVariable = null;
 
 
         // try to bind from current function
         Fun cf = Configuration.getInstance().currentFunction();
-        bindedVariable = cf.getMemoryStruct().getStructComponent(name);
+        Variable cfMemory = cf.getMemoryStruct();
+        if (cfMemory != null) {
+            bindedVariable = cfMemory.getStructComponent(name);
+        }
 
         if (bindedVariable != null) { // variable contained in function struct
             // base address is loaded into register j
@@ -311,7 +286,7 @@ public class CodeGenerator {
         }
 
         // try to bind from gm
-        Variable gm = MemoryTable.getInstance().getMemory("gm");
+        Variable gm = MemoryTable.getInstance().getMemory("$gm");
         bindedVariable = gm.getStructComponent(name);
 
         if (bindedVariable != null) { // variable is in global memory
