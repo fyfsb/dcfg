@@ -22,7 +22,7 @@ public class MemoryTable implements Table {
     private final Map<String, Variable> table;
     private static MemoryTable INSTANCE;
 
-    private MemoryTable() {
+    public MemoryTable() {
         table = new HashMap<>();
     }
 
@@ -30,6 +30,10 @@ public class MemoryTable implements Table {
         if (INSTANCE == null)
             INSTANCE = new MemoryTable();
         return INSTANCE;
+    }
+
+    public static void reset() {
+        INSTANCE = null;
     }
 
     public Variable getMemory(String name) throws MemoryStructException {

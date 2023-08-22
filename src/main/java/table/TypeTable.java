@@ -16,7 +16,7 @@ public class TypeTable implements Table {
     private final Map<String, VarType> table;
     private static TypeTable INSTANCE;
 
-    private TypeTable() {
+    public TypeTable() {
         table = new HashMap<>();
         fillWithPrimitives();
     }
@@ -25,6 +25,10 @@ public class TypeTable implements Table {
         if (INSTANCE == null)
             INSTANCE = new TypeTable();
         return INSTANCE;
+    }
+
+    public static void reset() {
+        INSTANCE = null;
     }
 
     public VarType getType(String name) throws TypeNotDefinedException {

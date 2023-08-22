@@ -151,7 +151,7 @@ public class Instruction {
     }
 
     private static String getRtype(String name, int rd, int rs, int rt) {
-        return name + " " + rd + " " + rs + " " + rt;
+        return name + " $" + rd + " $" + rs + " $" + rt;
     }
 
     private static String getBranch(String name, int rs, int imm) {

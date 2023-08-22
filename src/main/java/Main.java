@@ -35,8 +35,8 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        String grammarFilePath = "C:\\Users\\Chucha\\Desktop\\playground\\dcfg\\src\\main\\java\\grammar\\Grammar.txt";
-        String terminalsFilePath = "C:\\Users\\Chucha\\Desktop\\playground\\dcfg\\src\\main\\java\\grammar\\Terminals.txt";
+        String grammarFilePath = "src/main/java/grammar/Grammar.txt";
+        String terminalsFilePath = "src/main/java/grammar/Terminals.txt";
 
         Grammar g = new Grammar(grammarFilePath, terminalsFilePath);
 
@@ -58,16 +58,27 @@ public class Main {
                 parsedTree.printTree();
 
                 fillTables(parsedTree);
+
+                // id -> id[E] -> id.Na[E]
                 TypeTable.getInstance().printTable();
                 MemoryTable.getInstance().printTable();
                 FunctionTable.getInstance().printTable();
 
                 Configuration.getInstance().initialize();
+                CodeGenerator.getInstance().setGrammar(g);
                 CodeGenerator.getInstance().generateCode();
+
+                System.out.println("C0: " + code);
                 CodeGenerator.getInstance().printInstructions();
 
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                TypeTable.reset();
+                MemoryTable.reset();
+                FunctionTable.reset();
+                Configuration.reset();
+                CodeGenerator.reset();
             }
         }
 

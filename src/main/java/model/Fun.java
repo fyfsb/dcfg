@@ -170,6 +170,8 @@ public class Fun {
         // fud.fson = ty
         // fud.fson.bro = na
         // fud.fson.bro.bro = (
+
+        // Ty Na (PaDS) { VaDS ; body }
         DTE nextElement = fud.getFirstSon().getBrother().getBrother().getBrother();
         if (nextElement.isType("<PaDS>")) {
             pads = nextElement;
@@ -180,7 +182,7 @@ public class Fun {
         nextElement = nextElement.getBrother().getBrother();
         if (nextElement.isType("<VaDS>")) {
             vads = nextElement;
-            nextElement = nextElement.getBrother();
+            nextElement = nextElement.getBrother().getBrother();
         }
 
         body = nextElement;

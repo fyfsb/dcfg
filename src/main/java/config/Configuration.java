@@ -30,7 +30,7 @@ public class Configuration {
     private Map<String, Variable> heapTable;
     private Stack<FunctionCall> stack;
     private DTE programRest;
-    private final boolean[] occupiedRegisters = new boolean[32];
+    private boolean[] occupiedRegisters = new boolean[32];
 
     public List<ConfigurationSnapshot> getConfigurations() {
         return configurations;
@@ -105,6 +105,10 @@ public class Configuration {
         return INSTANCE;
     }
 
+    public static void reset() {
+        INSTANCE = null;
+    }
+
     public FunctionCall top() {
         return stack.peek();
     }
@@ -126,6 +130,10 @@ public class Configuration {
         index--;
         if (index < 0 || index > occupiedRegisters.length) return;
         occupiedRegisters[index] = false;
+    }
+
+    public void freeAllRegisters() {
+        occupiedRegisters = new boolean[32];
     }
 
     public int getFirstFreeRegister() {

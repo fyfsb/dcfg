@@ -17,7 +17,7 @@ public class FunctionTable implements Table {
     private final Map<String, Fun> table;
     private static FunctionTable INSTANCE;
 
-    private FunctionTable() {
+    public FunctionTable() {
         table = new HashMap<>();
     }
 
@@ -25,6 +25,10 @@ public class FunctionTable implements Table {
         if (INSTANCE == null)
             INSTANCE = new FunctionTable();
         return INSTANCE;
+    }
+
+    public static void reset() {
+        INSTANCE = null;
     }
 
     public Fun getFunction(String name) throws FunctionException {
