@@ -15,6 +15,10 @@ public class Instruction {
         return getIType("addi", rt, rs, imm);
     }
 
+    public static String subi(int rt, int rs, int imm) {
+        return getIType("subi", rt, rs, imm);
+    }
+
     public static String addiu(int rt, int rs, int imm) {
         return getIType("addiu", rt, rs, imm);
     }
@@ -53,6 +57,10 @@ public class Instruction {
 
     public static String beq(int rs, int imm) {
         return getBranch("beq", rs, imm);
+    }
+
+    public static String beqz(int rs, int imm) {
+        return getBranch("beqz", rs, imm);
     }
 
     public static String bne(int rs, int imm) {
@@ -146,6 +154,10 @@ public class Instruction {
     }
 
     // Helpers
+    public static String deref(int reg) {
+        return lw(reg, reg, 0);
+    }
+
     private static String getIType(String name, int rt, int rs, int imm) {
         return name + " $" + rt + " $" + rs + " " + imm; // "lw $1 $27 0"
     }

@@ -1,6 +1,5 @@
 package table;
 
-import config.Configuration;
 import exceptions.memory.MemoryStructAlreadyExistsException;
 import exceptions.memory.MemoryStructException;
 import exceptions.memory.MemoryStructIncompatibleTypeException;
@@ -8,8 +7,7 @@ import exceptions.memory.MemoryStructNotFoundException;
 import model.VarType;
 import model.Variable;
 import tree.DTE;
-import tree.TokenType;
-import util.TypeUtils;
+import util.Context;
 
 import java.util.HashMap;
 import java.util.List;
@@ -61,9 +59,12 @@ public class MemoryTable implements Table {
         VarType.Builder structBuilder = VarType.createStructTypeBuilder(componentPairs, name);
         VarType varType = TypeTable.getInstance().createStructType(structBuilder);
 
-        Variable gm = new Variable(name, 27, varType, 0);
-        Configuration.getInstance().setGlobalMemory(gm);
+        Variable gm = new Variable(name, Context.BPT, varType, 0);
         addMemory(gm);
+    }
+
+    public Variable gm() throws MemoryStructException {
+        return getMemory("$gm");
     }
 
     public void printTable() {

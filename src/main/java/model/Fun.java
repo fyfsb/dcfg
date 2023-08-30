@@ -161,7 +161,7 @@ public class Fun {
         TypeUtils.checkTokenType(fud, "<FuD>");
 
         String returnType = fud.getFirstSon().getBorderWord();
-        String name = fud.getFirstSon().getBrother().getBorderWord();
+        String name = fud.getNthSon(2).getBorderWord();
         DTE pads = null;
         DTE vads = null;
         DTE body;
@@ -172,22 +172,20 @@ public class Fun {
         // fud.fson.bro.bro = (
 
         // Ty Na (PaDS) { VaDS ; body }
-        DTE nextElement = fud.getFirstSon().getBrother().getBrother().getBrother();
+        DTE nextElement = fud.getNthSon(4);
         if (nextElement.isType("<PaDS>")) {
             pads = nextElement;
             nextElement = nextElement.getBrother();
         }
 
         // getting to function closure. If there are no variable declarations, current tree element is expected to be <body>
-        nextElement = nextElement.getBrother().getBrother();
+        nextElement = nextElement.getNthBrother(2);
         if (nextElement.isType("<VaDS>")) {
             vads = nextElement;
-            nextElement = nextElement.getBrother().getBrother();
+            nextElement = nextElement.getNthBrother(2);
         }
 
         body = nextElement;
-        System.out.println("BUILDING FUNCTION");
-        body.printTree();
 
         return new Builder()
                 .setName(name)

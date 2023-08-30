@@ -3,8 +3,6 @@ package model;
 import exceptions.typedef.TypeNotDefinedException;
 import table.TypeTable;
 import tree.DTE;
-import tree.TokenType;
-import util.TypeUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -68,7 +66,7 @@ public class VarType {
 
         VarType.Builder builder;
 
-        DTE typeExpression = tyD.getFirstSon().getBrother();
+        DTE typeExpression = tyD.getNthSon(2);
         DTE na = typeExpression.getBrother();
 
         String name = na.getBorderWord();
@@ -77,15 +75,15 @@ public class VarType {
         typeExpression.printTree();
 
         if (typeExpression.getFirstSon().isType("struct")) {
-            DTE vads = typeExpression.getFirstSon().getBrother().getBrother();
+            DTE vads = typeExpression.getNthSon(3);
             List<List<String>> componentPairs = vads.extractComponentPairs();
             builder = VarType.createStructTypeBuilder(componentPairs, name);
-        } else if (typeExpression.getFirstSon().getBrother().isType("`")) {
+        } else if (typeExpression.getNthSon(2).isType("`")) {
             String pTargetName = typeExpression.getFirstSon().getBorderWord();
             builder = VarType.createPointerTypeBuilder(pTargetName, name);
-        } else if (typeExpression.getFirstSon().getBrother().isType("[")) {
+        } else if (typeExpression.getNthSon(2).isType("[")) {
             String arrayCompTypeTargetName = typeExpression.getFirstSon().getBorderWord();
-            int arraySize = Integer.parseInt(typeExpression.getFirstSon().getBrother().getBrother().getBorderWord());
+            int arraySize = Integer.parseInt(typeExpression.getNthSon(3).getBorderWord());
 
             builder = VarType.createArrayTypeBuilder(arrayCompTypeTargetName, name, arraySize);
         } else {

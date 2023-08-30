@@ -1,16 +1,18 @@
 import codegen.CodeGenerator;
 import config.Configuration;
 import dk.DK1;
-import tree.DTE;
 import grammar.Grammar;
 import table.FunctionTable;
 import table.MemoryTable;
 import table.TypeTable;
-import tree.TokenType;
+import tree.DTE;
 import util.TypeUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+
+import static util.Context.DEBUG;
+import static util.Logger.log;
 
 public class Main {
 
@@ -18,18 +20,24 @@ public class Main {
         TypeUtils.checkTokenType(program, "<prog>");
 
         DTE current = program.getFirstSon();
-        if (current.getLabel().getContent().equals("<TyDS>")) {
+        if (current.isType("<TyDS>")) {
             TypeTable.getInstance().fillTable(current);
-            current = current.getBrother().getBrother();
+            current = current.getNthBrother(2);
         }
 
         if (current.isType("<VaDS>")) {
             MemoryTable.getInstance().fillTable(current);
-            current = current.getBrother().getBrother();
+            current = current.getNthBrother(2);
         }
 
         if (current.isType("<FuDS>")) {
             FunctionTable.getInstance().fillTable(current);
+        }
+
+        if (DEBUG) {
+            TypeTable.getInstance().printTable();
+            MemoryTable.getInstance().printTable();
+            FunctionTable.getInstance().printTable();
         }
     }
 
@@ -42,27 +50,21 @@ public class Main {
 
         DK1 dk1 = new DK1(g);
 
-        System.out.println("number of states: " + dk1.getStates().size());
-        System.out.println("-----------------------");
-        System.out.println("DK1 test passed = " + dk1.Test());
-        System.out.println("-----------------------");
+        log("number of states: " + dk1.getStates().size());
+        log("-----------------------");
+        log("DK1 test passed = " + dk1.Test());
+        log("-----------------------");
 
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        DEBUG = false;
         while (true) {
             System.out.println("code:");
             String code = reader.readLine();
             try {
                 DTE parsedTree = dk1.parseString(code);
-//                System.out.println(parsedTree);
-                parsedTree.printTree();
 
                 fillTables(parsedTree);
-
-                // id -> id[E] -> id.Na[E]
-                TypeTable.getInstance().printTable();
-                MemoryTable.getInstance().printTable();
-                FunctionTable.getInstance().printTable();
 
                 Configuration.getInstance().initialize();
                 CodeGenerator.getInstance().setGrammar(g);
@@ -73,68 +75,11 @@ public class Main {
 
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                TypeTable.reset();
-                MemoryTable.reset();
-                FunctionTable.reset();
-                Configuration.reset();
-                CodeGenerator.reset();
             }
+
+            TypeTable.reset();
+            MemoryTable.reset();
+            FunctionTable.reset();
         }
-
-        /*
-        typedef struct { int a, int b } k;
-
-        k s;
-        int f() {
-            s.b = 1;
-        }
-         */
-
-        // get the test program
-//        DTE dte = DTEUtils.getTestProgram();
-
-        // fill Type table, Memory table and Function table
-//        fillTables(dte);
-
-        // print tables
-//        TypeTable.getInstance().printTable();
-//        MemoryTable.getInstance().printTable();
-//        FunctionTable.getInstance().printTable();
-
-
-        // Initializing stack, empty heap, creating a function call for
-        // function "f" (later will be for main)
-        // setting the target function for CodeGenerator
-//        Configuration.getInstance().initialize();
-
-        // Generating code for target function
-//        CodeGenerator.getInstance().generateCode();
-
-        // printing generated instructions.
-//        CodeGenerator.getInstance().printInstructions();
-
-
-        /*
-        created a structure just to pass a single <prog> DTE
-            - fill the type table
-            - fill the gm memory table
-            - fill all the function table entries
-        create some abstractions to pass the tree
-            - fseq - flattened sequence DTE -> XS -> X ; XS
-            - bw, Na -> DiLeS
-
-        Functions - rda, rd
-
-        Fun / FunctionCall -> st(main, 0, rda)
-
-
-        // Basic structure for c0 configurations (stack, heaptable, nh, rd, snapshots of the old configurations)
-
-
-              // Code Generation
-
-
-         */
     }
 }

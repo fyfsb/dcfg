@@ -6,7 +6,6 @@ import grammar.Symbol;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class DTE {
 
@@ -52,7 +51,7 @@ public class DTE {
     }
 
     public boolean isType(String type) {
-        return getLabel().getContent().equals(type);
+        return labelContent().equals(type);
     }
 
     public List<DTE> getFlattenedSequence() {
@@ -84,14 +83,12 @@ public class DTE {
         List<DTE> flattened = getFlattenedSequence();
         List<List<String>> result = new LinkedList<>();
         for (DTE dte : flattened) {
-            System.out.println("EXTRACT_COMPONENT_PAIRS");
             if (dte.isType(";")) {
-                System.out.println("skipping semicolon");
                 dte = dte.brother;
             }
             dte.printTree();
             String type = dte.getFirstSon().getBorderWord();
-            String name = dte.getFirstSon().getBrother().getBorderWord();
+            String name = dte.getNthSon(2).getBorderWord();
 
             result.add(List.of(type, name));
             System.out.println(result);
@@ -106,6 +103,14 @@ public class DTE {
         while (curr != null && curr.firstSon != null) {
             result++;
             curr = curr.firstSon.brother;
+        }
+        return result;
+    }
+
+    public int getSiblingCount() {
+        int result = 0;
+        for (DTE curr = this; curr != null; curr = curr.brother) {
+            result++;
         }
         return result;
     }
@@ -170,6 +175,21 @@ public class DTE {
 
     public DTE getBrother() {
         return brother;
+    }
+
+    public DTE getNthBrother(int n) {
+        DTE result = this;
+        for (int i = 0; i < n; i++) {
+            result = result.getBrother();
+            assert result != null;
+        }
+        return result;
+    }
+
+    public DTE getNthSon(int n) {
+        DTE result = getFirstSon();
+        assert result != null;
+        return result.getNthBrother(n - 1);
     }
 
     private void setBrother(DTE brother) {
