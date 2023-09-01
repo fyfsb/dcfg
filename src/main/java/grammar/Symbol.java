@@ -2,6 +2,8 @@ package grammar;
 
 import java.util.HashSet;
 
+import static util.Logger.log;
+
 public class Symbol {
 
     public enum Type {
@@ -36,7 +38,7 @@ public class Symbol {
             }
         }
 
-        System.out.println(str);
+        log(str);
         return null;
 
     }

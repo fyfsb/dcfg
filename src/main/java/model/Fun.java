@@ -69,8 +69,8 @@ public class Fun {
     }
 
     public int getSize() {
-        int size = memoryStruct.getType().size;
-        return size + 4;
+        if (memoryStruct == null) return 0;
+        return memoryStruct.getType().size;
     }
 
     public static class Builder {

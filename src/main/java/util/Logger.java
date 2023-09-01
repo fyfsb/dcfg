@@ -1,7 +1,7 @@
 package util;
 
 public class Logger {
-    public static void log(String msg) {
+    public static <T> void log(T msg) {
         if (Context.DEBUG) {
             System.out.println(msg);
         }

@@ -149,7 +149,7 @@ public class Instruction {
         return "j " + iindex;
     }
 
-    public static String jal(int iindex) {
+    public static String jal(String iindex) {
         return "jal " + iindex;
     }
 

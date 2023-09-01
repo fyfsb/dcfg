@@ -4,8 +4,11 @@ import tree.DTE;
 import grammar.Grammar;
 import grammar.Production;
 import grammar.Symbol;
+import util.Logger;
 
 import java.util.*;
+
+import static util.Logger.log;
 
 public class DK1 {
 
@@ -43,7 +46,7 @@ public class DK1 {
             currentState.makeShiftMoves(states, g);
 
             if (states.size() % 100 == 0) {
-                System.out.println(queue.size() + " " + states.size());
+                log(queue.size() + " " + states.size());
             }
 
             for (Map.Entry<Symbol, State> entry : currentState.getPaths().entrySet()) {
@@ -74,10 +77,10 @@ public class DK1 {
                     if (R2.isComplete()) {
                         for (Symbol symbol : R1.getLookaheads()) {
                             if (R2.getLookaheads().contains(symbol)) {
-                                System.out.println("Rejecting State Condition_1: ");
-                                System.out.println(R1);
-                                System.out.println(R2);
-                                System.out.println(state.toStringOnlyState());
+                                log("Rejecting State Condition_1: ");
+                                log(R1);
+                                log(R2);
+                                log(state.toStringOnlyState());
                                 return false;
                             }
                         }
@@ -85,10 +88,10 @@ public class DK1 {
                         Symbol currentSymbol = R2.currentSymbol();
 
                         if (R1.getLookaheads().contains(currentSymbol)) {
-                            System.out.println("Rejecting State Condition_2: ");
-                            System.out.println(R1);
-                            System.out.println(R2);
-                            System.out.println(state.toStringOnlyState());
+                            log("Rejecting State Condition_2: ");
+                            log(R1);
+                            log(R2);
+                            log(state.toStringOnlyState());
                             return false;
                         }
                     }
@@ -125,7 +128,7 @@ public class DK1 {
         while (!validStringArray.get(0).equals(g.getStart())) {
             handle = findHandle(validStringArray);
 
-            System.out.println(validStringArray + "     [handle: " + handle +"]");
+            log(validStringArray + "     [handle: " + handle +"]");
 
             // Update the valid String Array
             Production hProd = Production.PROG_PROD;
@@ -140,11 +143,11 @@ public class DK1 {
             for (DerivationTreeElement Element : parseTree) {
                 System.out.print(Element.getLabel() + ", ");
             }
-            System.out.println();
+            log();
             */
         }
 
-        System.out.println(validStringArray);
+        log(validStringArray);
 
         return parseTree.get(0);
 
@@ -158,9 +161,9 @@ public class DK1 {
 
         while (currentState != null) {
 
-            //System.out.println("\n");
-            //System.out.println(currentSymbol);
-            //System.out.println(currentState.toStringOnlyState());
+            //log("\n");
+            //log(currentSymbol);
+            //log(currentState.toStringOnlyState());
 
             // If complete Item Check if it is the handle
             if (!currentState.getCompleteItems().isEmpty()) {

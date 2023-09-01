@@ -4,6 +4,7 @@ import exceptions.typedef.TypeNotDefinedException;
 import table.TypeTable;
 import tree.DTE;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -71,9 +72,6 @@ public class VarType {
 
         String name = na.getBorderWord();
 
-        System.out.println("TYPE_EXPRESSION WITH NAME " + name);
-        typeExpression.printTree();
-
         if (typeExpression.getFirstSon().isType("struct")) {
             DTE vads = typeExpression.getNthSon(3);
             List<List<String>> componentPairs = vads.extractComponentPairs();
@@ -99,6 +97,15 @@ public class VarType {
 
     public VarType getArrayCompTargetType() throws TypeNotDefinedException {
         return TypeTable.getInstance().getType(arrayCompTypeTargetName);
+    }
+
+    public List<Map.Entry<String, Variable>> getStructComponentNamesSortedByDisplacement() {
+        if (structComponents == null) return null;
+        return structComponents
+                .entrySet()
+                .stream()
+                .sorted(Comparator.comparingInt(stringVariableEntry -> stringVariableEntry.getValue().getDisplacement()))
+                .toList();
     }
 
     public static class Builder {

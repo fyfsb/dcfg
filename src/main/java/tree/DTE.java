@@ -86,12 +86,10 @@ public class DTE {
             if (dte.isType(";")) {
                 dte = dte.brother;
             }
-            dte.printTree();
             String type = dte.getFirstSon().getBorderWord();
             String name = dte.getNthSon(2).getBorderWord();
 
             result.add(List.of(type, name));
-            System.out.println(result);
         }
         return result;
     }

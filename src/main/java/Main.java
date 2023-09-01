@@ -45,6 +45,8 @@ public class Main {
 
         String grammarFilePath = "src/main/java/grammar/Grammar.txt";
         String terminalsFilePath = "src/main/java/grammar/Terminals.txt";
+        DEBUG = true;
+
 
         Grammar g = new Grammar(grammarFilePath, terminalsFilePath);
 
@@ -57,7 +59,6 @@ public class Main {
 
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        DEBUG = false;
         while (true) {
             System.out.println("code:");
             String code = reader.readLine();
@@ -66,7 +67,6 @@ public class Main {
 
                 fillTables(parsedTree);
 
-                Configuration.getInstance().initialize();
                 CodeGenerator.getInstance().setGrammar(g);
                 CodeGenerator.getInstance().generateCode();
 
@@ -80,6 +80,8 @@ public class Main {
             TypeTable.reset();
             MemoryTable.reset();
             FunctionTable.reset();
+            Configuration.reset();
+            CodeGenerator.reset();
         }
     }
 }

@@ -14,7 +14,10 @@ import static util.Logger.log;
 import static util.TypeUtils.checkTokenType;
 
 public class IdEvaluator {
-    private static final CodeGenerator cg = CodeGenerator.getInstance();
+    private static CodeGenerator cg() {
+        return CodeGenerator.getInstance();
+    }
+
 
     public static VarReg evaluateId(DTE id, boolean lv) throws Exception {
         checkTokenType(id, "<id>");
@@ -29,7 +32,7 @@ public class IdEvaluator {
 
             if (!lv) {
                 String instr = Instruction.deref(result.register);
-                cg.addInstruction(instr);
+                cg().addInstruction(instr);
             }
 
             return result;
@@ -55,12 +58,12 @@ public class IdEvaluator {
                 // create instruction
                 String instr = Instruction.addi(j, j, displ);
                 // add instruction to the list
-                cg.addInstruction(instr);
+                cg().addInstruction(instr);
 
                 VarReg result = new VarReg(boundComp, j);
 
                 if (!lv) {
-                    cg.addInstruction(Instruction.deref(result.register));
+                    cg().addInstruction(Instruction.deref(result.register));
                 }
 
                 return result;
@@ -78,14 +81,14 @@ public class IdEvaluator {
             // gpr(23) = enc(size(t))
             int arrSize = array.type.arraySize;
             // storing encoded size in $23
-            cg.addInstruction("macro: gpr(23) = enc(" + arrSize + ", uint)");
+            cg().addInstruction("macro: gpr(23) = enc(" + arrSize + ", uint)");
 
             // mul(j', j', 23)
-            cg.addInstruction("macro: mul($" + index.register + ", $" + index.register + ", $23)");
+            cg().addInstruction("macro: mul($" + index.register + ", $" + index.register + ", $23)");
 
             // add j j j'
             String instr = Instruction.add(array.register, array.register, index.register);
-            cg.addInstruction(instr);
+            cg().addInstruction(instr);
 
             Configuration.getInstance().freeRegister(index.register);
 
@@ -93,7 +96,7 @@ public class IdEvaluator {
             VarReg result = new VarReg(array.variable, array.register);
 
             if (!lv) {
-                cg.addInstruction(Instruction.deref(result.register));
+                cg().addInstruction(Instruction.deref(result.register));
             }
 
             return result;
@@ -105,10 +108,10 @@ public class IdEvaluator {
 
             // create instruction lw j j 0 ~ deref
             String instr = Instruction.deref(pointer.register);
-            cg.addInstruction(instr);
+            cg().addInstruction(instr);
 
             if (!lv) {
-                cg.addInstruction(Instruction.deref(pointer.register));
+                cg().addInstruction(Instruction.deref(pointer.register));
             }
 
             return pointer;
@@ -145,7 +148,7 @@ public class IdEvaluator {
             // create instruction
             String instr = Instruction.addi(j, SPT, imm);
             // add instruction to the list
-            cg.addInstruction(instr);
+            cg().addInstruction(instr);
 
             return new VarReg(bindedVariable, j);
         }
@@ -166,7 +169,7 @@ public class IdEvaluator {
             // create instruction
             String instr = Instruction.addi(j, BPT, displ);
             // add instruction to the list
-            cg.addInstruction(instr);
+            cg().addInstruction(instr);
 
             return new VarReg(bindedVariable, j);
         }

@@ -1,17 +1,17 @@
 package config;
 
 import model.Fun;
-import model.Variable;
+import model.VarReg;
 
 public class FunctionCall {
     private final int recursionDepth;
     private final Fun function;
 
-    private final Variable resultDestination;
+    private final VarReg resultDestination;
     private final int displacement;
 
 
-    public FunctionCall(int recursionDepth, Fun function, Variable resultDestination, int displacement) {
+    public FunctionCall(int recursionDepth, Fun function, VarReg resultDestination, int displacement) {
         this.recursionDepth = recursionDepth;
         this.function = function;
         this.resultDestination = resultDestination;
@@ -30,7 +30,7 @@ public class FunctionCall {
         return function;
     }
 
-    public Variable getResultDestination() {
+    public VarReg getResultDestination() {
         return resultDestination;
     }
 }

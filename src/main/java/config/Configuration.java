@@ -1,32 +1,41 @@
 package config;
 
-import codegen.CodeGenerator;
+import exceptions.function.FunctionException;
 import model.Fun;
-import model.Variable;
+import model.VarReg;
 import table.FunctionTable;
 
 import java.util.Stack;
 
 public class Configuration {
     private int recursionDepth;
-    private Stack<FunctionCall> stack;
+    private final Stack<FunctionCall> stack;
     private boolean[] occupiedRegisters = new boolean[32];
 
-    private Configuration(Stack<FunctionCall> stack) {
-        this.stack = stack;
+    private Configuration() {
+        this.stack = new Stack<>();
     }
 
     private static Configuration INSTANCE = null;
 
     public static Configuration getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new Configuration(null);
+            INSTANCE = new Configuration();
         }
         return INSTANCE;
     }
 
     public FunctionCall top() {
         return stack.peek();
+    }
+
+    public void popStack() {
+        try {
+            stack.pop();
+            recursionDepth--;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Fun currentFunction() {
@@ -39,8 +48,11 @@ public class Configuration {
         occupiedRegisters[index] = false;
     }
 
-    public void freeAllRegisters() {
+    public void freeAllRegisters(int retained) {
         occupiedRegisters = new boolean[32];
+        for (int i = 0; i < retained && i < occupiedRegisters.length; i++) {
+            occupiedRegisters[i] = true;
+        }
     }
 
     public int getFirstFreeRegister() {
@@ -53,26 +65,20 @@ public class Configuration {
         return -1;
     }
 
-    public FunctionCall callFunction(Fun function, Variable resultDestination) {
+    public FunctionCall callFunction(String functionName, VarReg resultDestination) throws FunctionException {
         int displacement = 0;
 
-        assert stack != null;
         if (!stack.isEmpty()) {
-            displacement = currentFunction().getSize() + top().getDisplacement();
+            displacement = currentFunction().getSize() + top().getDisplacement() + 4;
         }
 
+        Fun function = FunctionTable.getInstance().getFunction(functionName);
         FunctionCall call = new FunctionCall(recursionDepth++, function, resultDestination, displacement);
         stack.add(call);
         return call;
     }
 
-    public void initialize() throws Exception {
-        stack = new Stack<>();
-
-        // main
-        Fun mainFunction = FunctionTable.getInstance().getFunction("main");
-        FunctionCall mainCall = callFunction(mainFunction, null);
-
-        CodeGenerator.getInstance().setProgram(mainCall);
+    public static void reset() {
+        INSTANCE = null;
     }
 }
