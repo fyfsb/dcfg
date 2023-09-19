@@ -31,13 +31,13 @@ public class Item {
 
     // Returns the symbol next to the dot
     public Symbol currentSymbol() {
-        if (dotIndex == production.getRight().size()) return null;
+        if (dotIndex >= production.getRight().size()) return null;
         return production.getRight().get(dotIndex);
     }
 
     // Returns the symbol after the symbol next to the dot
     public Symbol nextSymbol() {
-        if ((dotIndex + 1) == production.getRight().size()) return null;
+        if ((dotIndex + 1) >= production.getRight().size()) return null;
         return production.getRight().get(dotIndex + 1);
     }
 

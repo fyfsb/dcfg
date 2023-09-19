@@ -4,7 +4,6 @@ import tree.DTE;
 import grammar.Grammar;
 import grammar.Production;
 import grammar.Symbol;
-import util.Logger;
 
 import java.util.*;
 
@@ -104,16 +103,12 @@ public class DK1 {
 
     public DTE parseString(String validString) {
 
-        String str = validString.replaceAll("\\s", "");
+        ArrayList<Symbol> validStringArray = Grammar.stringIntoSymbols(validString, g);
+        validStringArray = Grammar.eraseExtraWhitespace(validStringArray);
 
-        ArrayList<Symbol> validStringArray = new ArrayList<>();
-        int index = 0;
-        while (index < str.length()) {
-            Symbol currentSymbol = Symbol.firstSymbolInString(str.substring(index), g);
-            validStringArray.add(currentSymbol);
-            assert currentSymbol != null;
-            index += currentSymbol.length();
-        }
+        //remove
+        log(" ValidStringArray Test:");
+        log(validStringArray);
 
         // Initialize The parse tree with the validStringArray and after the parsing only the root will be in the array
         ArrayList<DTE> parseTree = new ArrayList<>();
@@ -131,11 +126,14 @@ public class DK1 {
             log(validStringArray + "     [handle: " + handle +"]");
 
             // Update the valid String Array
+            /*
             Production hProd = Production.PROG_PROD;
             if (handle.getProduction() != null) {
                 hProd = handle.getProduction();
             }
-            validStringArray = makeReduction(validStringArray, hProd, handle.getDotIndex());
+             */
+
+            validStringArray = makeReduction(validStringArray, handle.getProduction(), handle.getDotIndex());
 
             // Update the parse Tree
             parseTree = DTE.updateTheParseTree(parseTree, handle);
@@ -159,17 +157,20 @@ public class DK1 {
         int dotIndex = 0;
         Symbol currentSymbol = validStringArray.get(dotIndex);
 
+        //Remove
+        //log("\n" + "The State we are in: ");
+
         while (currentState != null) {
 
             //log("\n");
-            //log(currentSymbol);
+            //log(validStringArray + "  dotId: " + dotIndex);
             //log(currentState.toStringOnlyState());
 
             // If complete Item Check if it is the handle
             if (!currentState.getCompleteItems().isEmpty()) {
-                for (Item item : currentState.getCompleteItems()) {
-                    Symbol lookahead = validStringArray.size() > dotIndex ? validStringArray.get(dotIndex) : null;
+                Symbol lookahead = validStringArray.size() > dotIndex ? validStringArray.get(dotIndex) : null;
 
+                for (Item item : currentState.getCompleteItems()) {
                     if (lookahead != null && !item.getLookaheads().contains(lookahead)) continue;
                     return new Item(item.getProduction(), dotIndex, new HashSet<>());
                 }
@@ -220,6 +221,16 @@ public class DK1 {
         return null;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n").append("The DK1 Automaton with ").append(states.size()).append("state : ").append("\n\n");
+        for (State state : states) {
+            sb.append(state.toStringOnlyState());
+        }
+        return sb.toString();
+    }
+
     public State getStart() {
         return start;
     }
@@ -228,7 +239,7 @@ public class DK1 {
         return states;
     }
 
-    public Grammar getG() {
+    public Grammar getGrammar() {
         return g;
     }
 

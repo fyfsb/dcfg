@@ -17,31 +17,19 @@ public class State {
 
     public boolean addItem(Item newItem) {
 
-        boolean sameDottedRule = false;
-
         for (Item item : items) {
-            sameDottedRule = item.sameDottedRule(newItem);
-            if (sameDottedRule) {
+            if (item.sameDottedRule(newItem)) {
+                int size = item.getLookaheads().size();
                 item.addLookaheads(newItem.getLookaheads());
-                break;
+                return size < item.getLookaheads().size();
             }
         }
 
-        if (!sameDottedRule) {
-
-            items.add(newItem);
-            if (newItem.isComplete()) {
-                completeItems.add(newItem);
-            }
-            return true;
+        items.add(newItem);
+        if (newItem.isComplete()) {
+            completeItems.add(newItem);
         }
-
-        return false;
-
-    }
-
-    public void addPath(Symbol transitionSymbol, State transitionState) {
-        paths.put(transitionSymbol, transitionState);
+        return true;
     }
 
     // Make Epsilon Moves
@@ -97,13 +85,13 @@ public class State {
         for (Map.Entry<Symbol, Set<Item>> entry : symbolToItemsMap.entrySet()) {
             Symbol transitionSymbol = entry.getKey();
             Set<Item> transitionItems = entry.getValue();
-            State transitionState = createTransitionState(transitionSymbol, transitionItems, states, g);
+            State transitionState = createTransitionState(transitionItems, states, g);
             paths.put(transitionSymbol, transitionState);
         }
     }
 
     // Create Transition State
-    private State createTransitionState(Symbol transitionSymbol, Set<Item> transitionItems, HashSet<State> states, Grammar g) {
+    private State createTransitionState(Set<Item> transitionItems, HashSet<State> states, Grammar g) {
         State transitionState = new State();
 
         for (Item item : transitionItems) {
