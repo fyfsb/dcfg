@@ -106,10 +106,6 @@ public class DK1 {
         ArrayList<Symbol> validStringArray = Grammar.stringIntoSymbols(validString, g);
         validStringArray = Grammar.eraseExtraWhitespace(validStringArray);
 
-        //remove
-        log(" ValidStringArray Test:");
-        log(validStringArray);
-
         // Initialize The parse tree with the validStringArray and after the parsing only the root will be in the array
         ArrayList<DTE> parseTree = new ArrayList<>();
 
@@ -125,24 +121,10 @@ public class DK1 {
 
             log(validStringArray + "     [handle: " + handle +"]");
 
-            // Update the valid String Array
-            /*
-            Production hProd = Production.PROG_PROD;
-            if (handle.getProduction() != null) {
-                hProd = handle.getProduction();
-            }
-             */
-
             validStringArray = makeReduction(validStringArray, handle.getProduction(), handle.getDotIndex());
 
             // Update the parse Tree
             parseTree = DTE.updateTheParseTree(parseTree, handle);
-            /*
-            for (DerivationTreeElement Element : parseTree) {
-                System.out.print(Element.getLabel() + ", ");
-            }
-            log();
-            */
         }
 
         log(validStringArray);
@@ -157,14 +139,7 @@ public class DK1 {
         int dotIndex = 0;
         Symbol currentSymbol = validStringArray.get(dotIndex);
 
-        //Remove
-        //log("\n" + "The State we are in: ");
-
         while (currentState != null) {
-
-            //log("\n");
-            //log(validStringArray + "  dotId: " + dotIndex);
-            //log(currentState.toStringOnlyState());
 
             // If complete Item Check if it is the handle
             if (!currentState.getCompleteItems().isEmpty()) {
