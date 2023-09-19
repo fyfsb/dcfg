@@ -16,6 +16,17 @@ import static util.Logger.log;
 
 public class Main {
 
+    /*
+    Some Test Program Codes:
+
+    bool b; bool c; int main() {b=(bool)c||false;return 1}~
+    char c; int main() {c=t; return 1}~
+    int x; int main() {x = -14; return 1}~
+    int x; int main(){x=2; if true {x=4}else{x=9};return 3}~
+    typedef int[6] arr; arr a;int main() {a[0]=5;return 1}~
+
+     */
+
     public static void fillTables(DTE program) throws Exception {
         TypeUtils.checkTokenType(program, "<prog>");
 
@@ -45,10 +56,17 @@ public class Main {
 
         String grammarFilePath = "src/main/java/grammar/Grammar.txt";
         String terminalsFilePath = "src/main/java/grammar/Terminals.txt";
+
+        //String grammarFilePath = "C:/Users/Student/Desktop/CFG_1/Example1/Grammar.txt";
+        //String terminalsFilePath = "C:/Users/Student/Desktop/CFG_1/Example1/Terminals.txt";
+
+
         DEBUG = true;
 
 
         Grammar g = new Grammar(grammarFilePath, terminalsFilePath);
+
+        System.out.println(g);
 
         DK1 dk1 = new DK1(g);
 
@@ -56,6 +74,7 @@ public class Main {
         log("-----------------------");
         log("DK1 test passed = " + dk1.Test());
         log("-----------------------");
+        log("\n");
 
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -64,6 +83,10 @@ public class Main {
             String code = reader.readLine();
             try {
                 DTE parsedTree = dk1.parseString(code);
+
+                // Print the ParsedTree
+                log("The Parse Tree: ");
+                parsedTree.printTree();
 
                 fillTables(parsedTree);
 
@@ -83,5 +106,6 @@ public class Main {
             Configuration.reset();
             CodeGenerator.reset();
         }
+
     }
 }

@@ -40,12 +40,16 @@ public class DK1 {
         queue.add(start);
         queueCheck.add(start);
 
+        // Variable completionPercentage to display the progress of the automaton creation
+        int completionPercentage = 0;
+
         while (!queue.isEmpty()) {
             State currentState = queue.remove();
             currentState.makeShiftMoves(states, g);
 
-            if (states.size() % 100 == 0) {
-                log(queue.size() + " " + states.size());
+            if ((int) (states.size() / 28.07) > completionPercentage) {
+                completionPercentage = (int) (states.size() / 28.07);
+                log("DK1 Automaton Progress: " + completionPercentage + "%");
             }
 
             for (Map.Entry<Symbol, State> entry : currentState.getPaths().entrySet()) {
@@ -119,7 +123,7 @@ public class DK1 {
         while (!validStringArray.get(0).equals(g.getStart())) {
             handle = findHandle(validStringArray);
 
-            log(validStringArray + "     [handle: " + handle +"]");
+            log(validStringArray + "     [handle: " + handle.getProduction() +"]");
 
             validStringArray = makeReduction(validStringArray, handle.getProduction(), handle.getDotIndex());
 
