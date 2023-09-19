@@ -1,22 +1,22 @@
 <prog> -> <TyDS>;<VaDS>;<FuDS>~ | <VaDS>;<FuDS>~ | <TyDS>;<FuDS>~ | <FuDS>~
 <TyDS> -> <TyD> | <TyDS>;<TyD>
 <TyD> -> typedef <TE> <Na>
-<Ty> -> int | bool | char | uint | <Na>_
-<TE> -> <Ty>[<DiS>] | <Ty>` | struct {<VaDS>}
+<Ty> -> int | bool | char | uint | <Na>
+<TE> -> <Ty>[<DiS>] | <Ty>' | struct {<VaDS>}
 <VaDS> -> <VaD> | <VaDS>;<VaD>
 <VaD> -> <Ty> <Na>
 <FuDS> -> <FuD> | <FuDS>;<FuD>
 <FuD> -> <Ty> <Na> (<PaDS>){<VaDS>;<body>} | <Ty> <Na> (<PaDS>){<body>} | <Ty> <Na> (){<VaDS>;<body>} | <Ty> <Na> (){<body>}
-<PaDS> -> <VaD> | <VaD>,<PaDS>
+<PaDS> -> <VaD> | <PaDS>,<VaD>
 <body> -> <rSt> | <StS>;<rSt>
 <Di> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 <DiS> -> <Di> | <DiS><Di>
 <Le> -> A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z
-<Na> -> <Le> | <Le><Na> 
+<Na> -> <Le> | <Na><Le>
 <C> -> <DiS> | <DiS>u | null
 <CC> -> ! | " | # | $ | % | & | | | ' | ( | ) | * | + | , | - | . | / | : | ; | < | = | > | ? | @
 <BC> -> true | false
-<id> -> <Na> | <id>.<Na> | <id>[<E>] | <id>` | <id>&
+<id> -> <Na> | <id>.<Na> | <id>[<E>] | <id>' | <id>&
 <F> -> <id> | -1<F> | (<E>) | <C>
 <T> -> <F> | <T>*<F> | <T>/<F>
 <E> -> <T> | <E>+<T> | <E>-<T>
@@ -24,8 +24,8 @@
 <BF> -> (bool)<id> | <Atom> | !<BF> | (<BE>)
 <BT> -> <BF> | <BT>&&<BF>
 <BE> -> <BT> | <BE>||<BT>
-<St> -> <id>=<E> | <id>=<BE> | <id>=<CC> | if <BE> {<StS>} | if <BE> {<StS>} else {<StS>} | while<BE> {<StS>} | <id>=<Na>(<PaS>) | <id>=<Na>() | <id>=new <Na>`
+<St> -> <id>=<E> | <id>=<BE> | <id>=<CC> | if <BE> {<StS>} | if <BE> {<StS>} else {<StS>} | while <BE> {<StS>} | <id>=<Na>(<PaS>) | <id>=<Na>() | <id>=new <Na>'
 <rSt> -> return <E> | return <BE> | return <CC>
 <Pa> -> <E> | <BE> | <CC>
-<PaS> -> <Pa> | <Pa>,<PaS>
+<PaS> -> <Pa> | <PaS>,<Pa>
 <StS> -> <St> | <StS>;<St>
