@@ -5,8 +5,6 @@ import exceptions.variable.VariableDuplicateNameException;
 import model.VarType;
 import model.Variable;
 import tree.DTE;
-import tree.TokenType;
-import util.TypeUtils;
 
 import java.util.*;
 

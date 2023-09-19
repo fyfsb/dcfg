@@ -5,8 +5,6 @@ import exceptions.function.FunctionException;
 import exceptions.function.FunctionNotFoundException;
 import model.Fun;
 import tree.DTE;
-import tree.TokenType;
-import util.TypeUtils;
 
 import java.util.HashMap;
 import java.util.Map;
