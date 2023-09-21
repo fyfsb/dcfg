@@ -145,6 +145,10 @@ public class DK1 {
 
         while (currentState != null) {
 
+            //Remove
+            //log(currentState);
+            //log("\n");
+
             // If complete Item Check if it is the handle
             if (!currentState.getCompleteItems().isEmpty()) {
                 Symbol lookahead = validStringArray.size() > dotIndex ? validStringArray.get(dotIndex) : null;

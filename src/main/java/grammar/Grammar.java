@@ -91,6 +91,7 @@ public class Grammar {
     // 5) --- not yet implemented: remove whitespace after "," in the parameter declaration
     // 6) --- not yet implemented: remove whitespace before and after "="
     // 7) --- not yet implemented: remove whitespace before and after "+" and other operations
+    // 8) --- fix the error: struct {} s; it removes whitespace between } and variable name
     public static ArrayList<Symbol> eraseExtraWhitespace(ArrayList<Symbol> array) {
 
         ArrayList<Symbol> result = new ArrayList<>();
