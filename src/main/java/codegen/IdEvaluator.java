@@ -93,7 +93,7 @@ public class IdEvaluator {
             Configuration.getInstance().freeRegister(index.register);
 
             assert array.variable != null;
-            VarReg result = new VarReg(array.variable, array.register);
+            VarReg result = new VarReg(array.register, array.variable.getType().getArrayCompTargetType());
 
             if (!lv) {
                 cg().addInstruction(Instruction.deref(result.register));
@@ -103,7 +103,7 @@ public class IdEvaluator {
         }
 
         // id -> id*
-        if (id.getNthSon(2).isType("`")) {
+        if (id.getNthSon(2).isType("'")) {
             VarReg pointer = evaluateId(id.getFirstSon(), lv);
 
             // create instruction lw j j 0 ~ deref

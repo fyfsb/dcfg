@@ -23,18 +23,19 @@ public class ConstantEvaluator {
 
         int intValue;
         VarType type;
+        String instr;
 
         if (value.charAt(value.length() - 1) != 'u') {
             intValue = Integer.parseInt(value);
             type = VarType.INT_TYPE;
+            instr = Instruction.addi(register, register, intValue);
         } else {
             intValue = Integer.parseInt(value.substring(0, value.length() - 1));
             type = VarType.UINT_TYPE;
+            instr = Instruction.addiu(register, register, intValue);
         }
 
-        String instr = Instruction.addi(register, register, intValue);
         cg().addInstruction(instr);
-
         return new VarReg(register, type);
     }
 

@@ -89,7 +89,8 @@ public class ExpressionEvaluator {
         first = be.getFirstSon();
         assert first != null;
 
-        if (first.isType("<id>")) {
+        if (first.isType("(") && first.getBrother().isType("bool")) {
+            first = first.getNthBrother(3);
             return evaluateId(first, false);
         }
 

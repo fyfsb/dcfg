@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import static util.Logger.log;
 import static util.TypeUtils.checkTokenType;
 
 public class VarType {
@@ -70,13 +71,16 @@ public class VarType {
         DTE typeExpression = tyD.getNthSon(2);
         DTE na = typeExpression.getBrother();
 
+        log("Type expression: " + typeExpression.getBorderWord());
+        log("Type name: " + na);
+
         String name = na.getBorderWord();
 
         if (typeExpression.getFirstSon().isType("struct")) {
             DTE vads = typeExpression.getNthSon(3);
             List<List<String>> componentPairs = vads.extractComponentPairs();
             builder = VarType.createStructTypeBuilder(componentPairs, name);
-        } else if (typeExpression.getNthSon(2).isType("`")) {
+        } else if (typeExpression.getNthSon(2).isType("'")) {
             String pTargetName = typeExpression.getFirstSon().getBorderWord();
             builder = VarType.createPointerTypeBuilder(pTargetName, name);
         } else if (typeExpression.getNthSon(2).isType("[")) {

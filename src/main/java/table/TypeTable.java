@@ -8,6 +8,7 @@ import tree.DTE;
 
 import java.util.*;
 
+import static util.Logger.log;
 import static util.TypeUtils.checkTokenType;
 
 public class TypeTable implements Table {
@@ -56,7 +57,7 @@ public class TypeTable implements Table {
             Current grammar allows using non-primitive types
             in form of <Na>_
          */
-        builder.setName(builder.getName() + "_");
+        builder.setName(builder.getName());
 
         // case split
         switch (builder.getTypeClass()) {
@@ -125,6 +126,7 @@ public class TypeTable implements Table {
     }
 
     private void readTypeDefinition(DTE tyD) throws Exception {
+        log(tyD.getBorderWord());
         VarType.Builder builder = VarType.fromDTE(tyD);
         addType(builder);
     }

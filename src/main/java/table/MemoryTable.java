@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static model.VarType.TypeClass.STRUCT;
+import static util.Logger.log;
 import static util.TypeUtils.checkTokenType;
 
 public class MemoryTable implements Table {

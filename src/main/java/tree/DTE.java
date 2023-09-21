@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static util.Logger.log;
+
 public class DTE {
 
     private final Symbol label;
@@ -83,6 +85,7 @@ public class DTE {
         List<DTE> flattened = getFlattenedSequence();
         List<List<String>> result = new LinkedList<>();
         for (DTE dte : flattened) {
+            log(dte.getBorderWord());
             if (dte.isType(";")) {
                 dte = dte.brother;
             }
@@ -172,7 +175,9 @@ public class DTE {
     }
 
     public DTE getBrother() {
-        return brother;
+        DTE res = brother;
+        if (res == null || !res.isType(" ")) return res;
+        return res.getBrother();
     }
 
     public DTE getNthBrother(int n) {

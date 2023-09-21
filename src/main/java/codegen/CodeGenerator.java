@@ -293,6 +293,7 @@ public class CodeGenerator {
         VarReg expr;
         DTE node = rSt.getNthSon(2);
 
+        log("return exp: " + node.getBorderWord());
         if (node.isType("<E>")) {
             expr = evaluateExpression(node);
         } else if (node.isType("<BE>")) {
