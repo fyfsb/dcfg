@@ -1,34 +1,41 @@
 package grammar;
 
-import java.util.HashSet;
-
+// Encapsulates the concept of symbol, which can either be a terminal or a nonterminal.
 public class Symbol {
 
     public enum Type {
         Terminal, Nonterminal
     }
 
+    // A string representing the actual content of the symbol.
     private final String content;
+    // An enum indicating whether the symbol is terminal ar a nonterminal.
     private final Type type;
 
+    // Initializes a symbol with the specified content and type.
     public Symbol(String content, Type type) {
         this.content = content;
         this.type = type;
     }
 
+    // Returns true if the symbol is terminal, returns false otherwise.
     public boolean isTerminal() {
         return type == Type.Terminal;
     }
 
+    // Returns the length of the content string.
     public int length() {
         return content.length();
     }
 
+    // Returns only the content string without type.
     @Override
     public String toString() {
         return content;
     }
 
+    // Determines whether two 'Symbol' objects are identical in both content and type.
+    // This is essential for comparison operations, ensuring symbols are uniquely identified by both their content and type.
     @Override
     public boolean equals(Object obj){
         if (this == obj) {
@@ -41,55 +48,13 @@ public class Symbol {
         return type.equals(symbol.getType()) && content.equals(symbol.getContent());
     }
 
+    // Returns a hash code of the symbol.
+    // Ensuring correct hash code calculation to correctly implement hash sets and hash maps.
     @Override
     public int hashCode() {
         int result = content.hashCode();
         result = 31 * result + (type == Type.Terminal ? 1 : 0);
         return result;
-    }
-
-    public static Symbol firstSymbolInString(String str, Grammar g) throws IllegalArgumentException {
-
-        HashSet<Symbol> terminals = g.getTerminals();
-        HashSet<Symbol> nonterminals = g.getNonterminals();
-
-        for (int i = 0; i < str.length(); i++) {
-            String subStr = str.substring(0, str.length() - i);
-
-            Symbol nonterminal = new Symbol(subStr, Symbol.Type.Nonterminal);
-            if (nonterminals.contains(nonterminal)) {
-                return nonterminal;
-            }
-
-            Symbol terminal = new Symbol(subStr, Symbol.Type.Terminal);
-            if (terminals.contains(terminal)) {
-                return terminal;
-            }
-        }
-
-        throw new IllegalArgumentException("Can't find the first symbol in this string:  " + str);
-    }
-
-    // Return all the symbols that can be derived from the given symbol
-    public static HashSet<Symbol> lookaheadsFromSymbol(Symbol symbol, HashSet<Symbol> symbols, Grammar g) {
-        HashSet<Symbol> lookaheads = new HashSet<>();
-        symbols.add(symbol);
-
-        if (symbol.isTerminal()) {
-            lookaheads.add(symbol);
-            return lookaheads;
-        } else {
-            for (Production production : g.getProductions()) {
-                if (production.getLeft().equals(symbol)) {
-                    Symbol derivedSymbol = production.getRight().get(0);
-                    if (!symbols.contains((derivedSymbol))) {
-                        lookaheads.addAll((lookaheadsFromSymbol(derivedSymbol, symbols, g)));
-                    }
-                }
-            }
-        }
-
-        return lookaheads;
     }
 
     public String getContent() {

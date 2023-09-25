@@ -53,7 +53,7 @@ public class State {
                     if (nextSymbol == null) {
                         lookaheads = new HashSet<>(item.getLookaheads());
                     } else {
-                        lookaheads = Symbol.lookaheadsFromSymbol(nextSymbol, new HashSet<>(), g);
+                        lookaheads = State.lookaheadsFromSymbol(nextSymbol, new HashSet<>(), g);
                     }
 
                     for (Production production : g.getProductions()) {
@@ -67,6 +67,29 @@ public class State {
 
         } while (newItems);
     }
+
+    // Return all the symbols that can be derived from the given symbol
+    public static HashSet<Symbol> lookaheadsFromSymbol(Symbol symbol, HashSet<Symbol> symbols, Grammar g) {
+        HashSet<Symbol> lookaheads = new HashSet<>();
+        symbols.add(symbol);
+
+        if (symbol.isTerminal()) {
+            lookaheads.add(symbol);
+            return lookaheads;
+        } else {
+            for (Production production : g.getProductions()) {
+                if (production.getLeft().equals(symbol)) {
+                    Symbol derivedSymbol = production.getRight().get(0);
+                    if (!symbols.contains((derivedSymbol))) {
+                        lookaheads.addAll((lookaheadsFromSymbol(derivedSymbol, symbols, g)));
+                    }
+                }
+            }
+        }
+
+        return lookaheads;
+    }
+
 
     // Make Shift Moves
     public void makeShiftMoves(HashSet<State> states, Grammar g) {

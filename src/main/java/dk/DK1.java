@@ -107,7 +107,7 @@ public class DK1 {
 
     public DTE parseString(String validString) {
 
-        ArrayList<Symbol> validStringArray = Grammar.stringIntoSymbols(validString, g);
+        ArrayList<Symbol> validStringArray = Grammar.stringIntoSymbols(validString, g.getTerminals(), g.getNonterminals());
         validStringArray = Grammar.eraseExtraWhitespace(validStringArray);
 
         // Initialize The parse tree with the validStringArray and after the parsing only the root will be in the array
