@@ -1,172 +1,213 @@
 package codegen;
 
+import assembly.Assembly.*;
 public class Instruction {
 
+    public final Mnemonic instruction;
+    public final Integer rt;
+    public final Integer rs;
+    public final Integer rd;
+    public final Integer sa;
+    public final Integer imm;
+    public final Integer iindex;
+    private Instruction(Mnemonic instruction, Integer rt, Integer rs, Integer imm) {
+        this.instruction = instruction;
+        this.rt = rt;
+        this.rs = rs;
+        this.rd = null;
+        this.sa = null;
+        this.imm = imm;
+        this.iindex = null;
+    }
+
+    public Instruction(Mnemonic instruction, Integer rd, Integer rs, Integer rt, Integer sa) {
+        this.instruction = instruction;
+        this.rt = rt;
+        this.rs = rs;
+        this.rd = rd;
+        this.sa = sa;
+        this.imm = null;
+        this.iindex = null;
+    }
+
+    public Instruction(Mnemonic instruction, Integer iindex) {
+        this.instruction = instruction;
+        this.rt = null;
+        this.rs = null;
+        this.rd = null;
+        this.sa = null;
+        this.imm = null;
+        this.iindex = iindex;
+    }
+
     // I type
-    public static String lw(int rt, int rs, int imm) {
-        return getIType("lw", rt, rs, imm);
+    public static Instruction lw(int rt, int rs, int imm) {
+        return getIType(Mnemonic.LW, rt, rs, imm);
     }
 
-    public static String sw(int rt, int rs, int imm) {
-        return getIType("sw", rt, rs, imm);
+    public static Instruction sw(int rt, int rs, int imm) {
+        return getIType(Mnemonic.SW, rt, rs, imm);
     }
 
-    public static String addi(int rt, int rs, int imm) {
-        return getIType("addi", rt, rs, imm);
+    public static Instruction addi(int rt, int rs, int imm) {
+        return getIType(Mnemonic.ADDI, rt, rs, imm);
     }
 
-    public static String subi(int rt, int rs, int imm) {
-        return getIType("subi", rt, rs, imm);
+    public static Instruction subi(int rt, int rs, int imm) {
+        return getIType(Mnemonic.SUBI, rt, rs, imm);
     }
 
-    public static String addiu(int rt, int rs, int imm) {
-        return getIType("addiu", rt, rs, imm);
+    public static Instruction addiu(int rt, int rs, int imm) {
+        return getIType(Mnemonic.ADDIU, rt, rs, imm);
     }
 
-    public static String slti(int rt, int rs, int imm) {
-        return getIType("slti", rt, rs, imm);
+    public static Instruction slti(int rt, int rs, int imm) {
+        return getIType(Mnemonic.SLTI, rt, rs, imm);
     }
 
-    public static String sltiu(int rt, int rs, int imm) {
-        return getIType("sltiu", rt, rs, imm);
+    public static Instruction sltiu(int rt, int rs, int imm) {
+        return getIType(Mnemonic.SLTIU, rt, rs, imm);
     }
 
-    public static String andi(int rt, int rs, int imm) {
-        return getIType("andi", rt, rs, imm);
+    public static Instruction andi(int rt, int rs, int imm) {
+        return getIType(Mnemonic.ANDI, rt, rs, imm);
     }
 
-    public static String ori(int rt, int rs, int imm) {
-        return getIType("ori", rt, rs, imm);
+    public static Instruction ori(int rt, int rs, int imm) {
+        return getIType(Mnemonic.ORI, rt, rs, imm);
     }
 
-    public static String xori(int rt, int rs, int imm) {
-        return getIType("xori", rt, rs, imm);
+    public static Instruction xori(int rt, int rs, int imm) {
+        return getIType(Mnemonic.XORI, rt, rs, imm);
     }
 
-    public static String lui(int rt, int rs, int imm) {
-        return getIType("lui", rt, rs, imm);
+    public static Instruction lui(int rt, int rs, int imm) {
+        return getIType(Mnemonic.LUI, rt, rs, imm);
     }
 
-    public static String bltz(int rs, int imm) {
-        return getBranch("bltz", rs, imm);
+    public static Instruction bltz(int rs, int imm) {
+        return getIType(Mnemonic.BLTZ, null, rs, imm);
     }
 
-    public static String bgez(int rs, int imm) {
-        return getBranch("bgez", rs, imm);
+    public static Instruction bgez(int rs, int imm) {
+        return getIType(Mnemonic.BGEZ, null, rs, imm);
     }
 
-    public static String beq(int rs, int imm) {
-        return getBranch("beq", rs, imm);
+    public static Instruction beq(int rs, int imm) {
+        return getIType(Mnemonic.BEQ, null, rs, imm);
     }
 
-    public static String beqz(int rs, int imm) {
+    public static Instruction beqz(int rs, int imm) {
         return getBranch("beqz", rs, imm);
     }
 
-    public static String bne(int rs, int imm) {
-        return getBranch("bne", rs, imm);
+    public static Instruction bne(int rs, int imm) {
+        return getIType(Mnemonic.BNE, null, rs, imm);
     }
 
-    public static String blez(int rs, int imm) {
-        return getBranch("blez", rs, imm);
+    public static Instruction blez(int rs, int imm) {
+        return getIType(Mnemonic.BLEZ, null, rs, imm);
     }
 
-    public static String bgtz(int rs, int imm) {
-        return getBranch("bgtz", rs, imm);
+    public static Instruction bgtz(int rs, int imm) {
+        return getIType(Mnemonic.BGTZ, null, rs, imm);
     }
 
     // R Type
-    public static String srl(int rd, int rs, int sa) {
-        return getRtype("srl", rd, rs, sa);
+    public static Instruction srl(int rd, int rs, int sa) {
+        return getRtype(Mnemonic.SRL, rd, rs, null, sa);
     }
 
-    public static String add(int rd, int rs, int rt) {
-        return getRtype("add", rd, rs, rt);
+    public static Instruction add(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.ADD, rd, rs, rt, null);
     }
 
-    public static String addu(int rd, int rs, int rt) {
-        return getRtype("addu", rd, rs, rt);
+    public static Instruction addu(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.ADDU, rd, rs, rt, null);
     }
 
-    public static String sub(int rd, int rs, int rt) {
-        return getRtype("sub", rd, rs, rt);
+    public static Instruction sub(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.SUB, rd, rs, rt, null);
     }
 
-    public static String subu(int rd, int rs, int rt) {
-        return getRtype("subu", rd, rs, rt);
+    public static Instruction subu(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.SUBU, rd, rs, rt, null);
     }
 
-    public static String and(int rd, int rs, int rt) {
-        return getRtype("and", rd, rs, rt);
+    public static Instruction and(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.AND, rd, rs, rt, null);
     }
 
-    public static String or(int rd, int rs, int rt) {
-        return getRtype("or", rd, rs, rt);
+    public static Instruction or(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.OR, rd, rs, rt, null);
     }
 
-    public static String xor(int rd, int rs, int rt) {
-        return getRtype("xor", rd, rs, rt);
+    public static Instruction xor(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.XOR, rd, rs, rt, null);
     }
 
-    public static String nor(int rd, int rs, int rt) {
-        return getRtype("nor", rd, rs, rt);
+    public static Instruction nor(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.NOR, rd, rs, rt, null);
     }
 
-    public static String slt(int rd, int rs, int rt) {
-        return getRtype("slt", rd, rs, rt);
+    public static Instruction slt(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.SLT, rd, rs, rt, null);
     }
 
-    public static String sltu(int rd, int rs, int rt) {
-        return getRtype("sltu", rd, rs, rt);
+    public static Instruction sltu(int rd, int rs, int rt) {
+        return getRtype(Mnemonic.SLTU, rd, rs, rt, null);
     }
 
-    public static String jr(int rs) {
-        return "jr " + rs;
+    public static Instruction jr(int rs) {
+        return getRtype(Mnemonic.JR, null, rs, null, null);
     }
 
-    public static String jalr(int rd, int rs) {
-        return "jalr " + rd + " " + rs;
+    public static Instruction jalr(int rd, int rs) {
+        return getRtype(Mnemonic.JALR, rd, rs, null, null);
     }
 
-    public static String sysc() {
-        return "sysc";
+    public static Instruction sysc() {
+        return getRtype(Mnemonic.SYSC, null, null, null, null);
     }
 
-    public static String eret() {
-        return "eret";
+    public static Instruction eret() {
+        return getRtype(Mnemonic.ERET, null, 16, null, null);
     }
 
-    public static String movg2s(int rd, int rt) {
-        return "movg2s " + rd + " " + rt;
+    public static Instruction movg2s(int rd, int rt) {
+        return getRtype(Mnemonic.MOVG2S, null, 4, null, null);
     }
 
-    public static String movs2g(int rd, int rt) {
-        return "movs2g " + rd + " " + rt;
+    public static Instruction movs2g(int rd, int rt) {
+        return getRtype(Mnemonic.MOVS2G, null, 0, null, null);
     }
 
     // J Type
-    public static String j(int iindex) {
-        return "j " + iindex;
+    public static Instruction j(int iindex) {
+        return getJtype(Mnemonic.J, iindex);
     }
 
-    public static String jal(String iindex) {
-        return "jal " + iindex;
+    public static Instruction jal(int iindex) {
+        return getJtype(Mnemonic.JAL, iindex);
     }
 
     // Helpers
-    public static String deref(int reg) {
+    public static Instruction deref(int reg) {
         return lw(reg, reg, 0);
     }
 
-    private static String getIType(String name, int rt, int rs, int imm) {
-        return name + " $" + rt + " $" + rs + " " + imm; // "lw $1 $27 0"
+    private static Instruction getIType(Mnemonic instruction, Integer rt, Integer rs, Integer imm) {
+        return new Instruction(instruction, rt, rs, imm); // "lw $1 $27 0"
     }
 
-    private static String getRtype(String name, int rd, int rs, int rt) {
-        return name + " $" + rd + " $" + rs + " $" + rt;
+    private static Instruction getRtype(Mnemonic instruction, Integer rd, Integer rs, Integer rt, Integer sa) {
+        return new Instruction(instruction, rd, rs, rt, sa);
     }
 
-    private static String getBranch(String name, int rs, int imm) {
-        return name + " " + rs + " " + imm;
+    private static Instruction getJtype(Mnemonic instruction, Integer iindex){
+        return new Instruction(instruction, iindex);
+    };
+    public String assemble() {
+        return instruction.getOpcode() + Integer.parseInt(rt.toString(), 2);
     }
 }

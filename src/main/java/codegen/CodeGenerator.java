@@ -29,16 +29,16 @@ public class CodeGenerator {
     private CodeGenerator() {
     }
 
-    private final Map<String, List<String>> functionInstructions = new HashMap<>();
+    private final Map<String, List<Instruction>> functionInstructions = new HashMap<>();
     private final Set<String> generatedFunctions = new HashSet<>();
 
-    public void addInstruction(String instr) {
+    public void addInstruction(Instruction instr) {
         functionInstructions
                 .get(Configuration.getInstance().currentFunction().getName())
                 .add(instr);
     }
 
-    public void addInstruction(int index, String instr) {
+    public void addInstruction(int index, Instruction instr) {
         functionInstructions
                 .get(Configuration.getInstance().currentFunction().getName())
                 .add(index, instr);
@@ -188,7 +188,7 @@ public class CodeGenerator {
 
         checkSameTypes(varRegId.type, varRegValue.type);
 
-        String instr = Instruction.sw(varRegValue.register, varRegId.register, 0);
+        Instruction instr = Instruction.sw(varRegValue.register, varRegId.register, 0);
         addInstruction(instr);
         Configuration.getInstance().freeRegister(varRegValue.register);
 
@@ -197,7 +197,7 @@ public class CodeGenerator {
 
     public void printInstructions() {
         System.out.println("\n\n------ GENERATED INSTRUCTIONS ------");
-        List<String> mainInstructions = functionInstructions.get("main");
+        List<Instruction> mainInstructions = functionInstructions.get("main");
         System.out.println("_main:");
         mainInstructions.forEach(System.out::println);
         System.out.println();
@@ -234,7 +234,7 @@ public class CodeGenerator {
         generateStS(bodyNode);
         int bodySize = instructionsSize() - before;
 
-        String instr = Instruction.beqz(expression.register, bodySize + 2);
+        Instruction instr = Instruction.beqz(expression.register, bodySize + 2);
         addInstruction(before, instr);
 
         // jump back to start of loop
