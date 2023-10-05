@@ -9,7 +9,9 @@ import tree.DTE;
 import util.TypeUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
+import java.util.Scanner;
 
 import static util.Context.DEBUG;
 import static util.Logger.log;
@@ -80,9 +82,17 @@ public class Main {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             System.out.println("code:");
-            String code = reader.readLine();
+            String path = reader.readLine();
+            File file = new File(path);
+            Scanner sc = new Scanner(file);
+            StringBuilder code = new StringBuilder();
+
+            while (sc.hasNext()) {
+                code.append(sc.nextLine()).append("\n");
+            }
+
             try {
-                DTE parsedTree = dk1.parseString(code);
+                DTE parsedTree = dk1.parseString(code.toString());
 
                 // Print the ParsedTree
                 log("The Parse Tree: ");

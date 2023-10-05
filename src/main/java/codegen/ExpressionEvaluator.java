@@ -52,7 +52,7 @@ public class ExpressionEvaluator {
         if (second != null) { // only possible case is -F (unary minus on factor)
             log("Unary minus detected.");
 
-            checkTokenType(first, "-1");
+            checkTokenType(first, "-");
 
             VarReg f = evaluateExpression(second);
             // perform unary minus operation
@@ -226,7 +226,7 @@ public class ExpressionEvaluator {
         VarReg leftVar = evaluateExpression(left);
         VarReg rightVar = evaluateExpression(right);
 
-        checkSameTypes(leftVar.type, rightVar.type, VarType.BOOL_TYPE);
+        checkSameTypes(leftVar.type, rightVar.type);
 
         String instr;
         if (op.isType(">")) {
