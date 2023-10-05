@@ -11,24 +11,30 @@ import static util.Logger.log;
 
 public class DK1 {
 
+    // A ‘State’ object representing the start state of the automaton.
     private final State start;
+
+    // A set of ‘State’ objects representing all the states of the automaton.
     private final HashSet<State> states;
+
+    // A ‘Grammar’ object representing the input CFG.
     private final Grammar g;
 
-    public DK1(Grammar g) {
+    // Creates the DK_1 automaton for the given CFG, grammar.
+    public DK1(Grammar grammar) {
         // Initialize the Grammar
-        this.g = g;
+        this.g = grammar;
 
         // Initialize the Start State
         start = new State();
-        for (Production production : g.getProductions()) {
-            if (production.getLeft().equals(g.getStart())) {
-                start.addItem(new Item(production, 0, g.getTerminals()));
+        for (Production production : grammar.getProductions()) {
+            if (production.getLeft().equals(grammar.getStart())) {
+                start.addItem(new Item(production, 0, grammar.getTerminals()));
             }
         }
 
         // Make Epsilon Moves from the Start State
-        start.makeEpsilonMoves(g);
+        start.makeEpsilonMoves(grammar);
 
         // Put the start state in the states
         states = new HashSet<>();
@@ -36,7 +42,7 @@ public class DK1 {
 
         // Make Transitions and Find all States
         Queue<State> queue = new LinkedList<>();
-        HashSet<State> queueCheck = new HashSet<>();
+        Queue<State> queueCheck = new LinkedList<>();
         queue.add(start);
         queueCheck.add(start);
 
@@ -45,14 +51,14 @@ public class DK1 {
 
         while (!queue.isEmpty()) {
             State currentState = queue.remove();
-            currentState.makeShiftMoves(states, g);
+            currentState.makeShiftMoves(states, grammar);
 
             if ((int) (states.size() / 28.07) > completionPercentage) {
                 completionPercentage = (int) (states.size() / 28.07);
                 log("DK1 Automaton Progress: " + completionPercentage + "%");
             }
 
-            for (Map.Entry<Symbol, State> entry : currentState.getPaths().entrySet()) {
+            for (Map.Entry<Symbol, State> entry : currentState.getTransitionFunction().entrySet()) {
                 State newState = entry.getValue();
 
                 boolean flag = false;
@@ -70,8 +76,8 @@ public class DK1 {
         }
     }
 
-    // DK1 Test
-    public boolean Test() {
+    // Returns true if the ‘Grammar’ is LR(1), false otherwise.
+    public boolean dk1Test() {
         for (State state : states) {
             for (Item R1 : state.getItems()) {
                 for (Item R2 : state.getItems()) {
@@ -105,10 +111,11 @@ public class DK1 {
         return true;
     }
 
+    // Returns a derivation tree for the given valid string.
     public DTE parseString(String validString) {
 
         ArrayList<Symbol> validStringArray = Grammar.stringIntoSymbols(validString, g.getTerminals(), g.getNonterminals());
-        validStringArray = Grammar.eraseExtraWhitespace(validStringArray);
+        validStringArray = Grammar.eleminateExtraWhitespace(validStringArray);
 
         // Initialize The parse tree with the validStringArray and after the parsing only the root will be in the array
         ArrayList<DTE> parseTree = new ArrayList<>();
@@ -137,6 +144,7 @@ public class DK1 {
 
     }
 
+    // Returns the handle for the given valid string.
     public Item findHandle(ArrayList<Symbol> validStringArray) {
 
         State currentState = start;
@@ -161,7 +169,7 @@ public class DK1 {
 
             // Make transition
             boolean madeTransition = false;
-            for (Map.Entry<Symbol, State> entry : currentState.getPaths().entrySet()) {
+            for (Map.Entry<Symbol, State> entry : currentState.getTransitionFunction().entrySet()) {
                 Symbol transitionSymbol = entry.getKey();
                 State transitionState = entry.getValue();
 
@@ -182,6 +190,7 @@ public class DK1 {
         return null;
     }
 
+    // Makes a reduction of the valid string based on the provided handle.
     public ArrayList<Symbol> makeReduction(ArrayList<Symbol> validStringArray, Production handle, int dotIndex) {
 
         int handleIndex = dotIndex - handle.getRight().size();

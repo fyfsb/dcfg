@@ -11,14 +11,21 @@ import java.util.Set;
 
 public class State {
 
+    // A set of ‘Item’ objects that represents all the items / dotted rules for this state.
     private final HashSet<Item> items = new HashSet<>();
-    private final HashMap<Symbol, State> paths = new HashMap<>();
+
+    // A HashMap<Symbol, State> representing the neighboring states of the current state.
+    // In other words, the transitionFunction tracks paths from the current state to other states via a specific ‘Symbol’ object.
+    private final HashMap<Symbol, State> transitionFunction = new HashMap<>();
+
+    //A set of ‘Item’ objects to represent all the completed rules.
     private final HashSet<Item> completeItems = new HashSet<>();
 
+    // adds a new ‘Item’ object to the items. If a similar item with the same production and dotIndex already exists, the function simply merges the lookaheads.
     public boolean addItem(Item newItem) {
 
         for (Item item : items) {
-            if (item.sameDottedRule(newItem)) {
+            if (item.sameProductionAndDot(newItem)) {
                 int size = item.getLookaheads().size();
                 item.addLookaheads(newItem.getLookaheads());
                 return size < item.getLookaheads().size();
@@ -32,26 +39,26 @@ public class State {
         return true;
     }
 
-    // Make Epsilon Moves
+    // Implements the ε-transitions process as described in the book.
     public void makeEpsilonMoves(Grammar g) {
 
         boolean newItems;
         do {
             newItems = false;
 
-            for (Item item : new HashSet<>(items)) { // Copy items to avoid ConcurrentModificationException
+            for (Item currentitem : new HashSet<>(items)) { // Copy items to avoid ConcurrentModificationException
 
-                Symbol currentSymbol = item.currentSymbol();
+                Symbol currentSymbol = currentitem.currentSymbol();
 
                 if (currentSymbol == null) continue;
 
                 if (!currentSymbol.isTerminal()) {
 
-                    Symbol nextSymbol = item.nextSymbol();
+                    Symbol nextSymbol = currentitem.nextSymbol();
 
                     HashSet<Symbol> lookaheads;
                     if (nextSymbol == null) {
-                        lookaheads = new HashSet<>(item.getLookaheads());
+                        lookaheads = new HashSet<>(currentitem.getLookaheads());
                     } else {
                         lookaheads = State.lookaheadsFromSymbol(nextSymbol, new HashSet<>(), g);
                     }
@@ -68,7 +75,7 @@ public class State {
         } while (newItems);
     }
 
-    // Return all the symbols that can be derived from the given symbol
+    // Calculates and returns all the terminal symbols that can be the first symbol of the valid strings derivable from the given symbol within this grammar. As this function is also recursive, the symbols parameter keeps track of visited symbols to prevent the infinite loops
     public static HashSet<Symbol> lookaheadsFromSymbol(Symbol symbol, HashSet<Symbol> symbols, Grammar g) {
         HashSet<Symbol> lookaheads = new HashSet<>();
         symbols.add(symbol);
@@ -91,7 +98,7 @@ public class State {
     }
 
 
-    // Make Shift Moves
+    // Implements the shift transitions process specified in the book. This function initializes new states, when necessary. The states parameter ensures we don’t duplicate state creations.
     public void makeShiftMoves(HashSet<State> states, Grammar g) {
         Map<Symbol, Set<Item>> symbolToItemsMap = new HashMap<>();
 
@@ -109,32 +116,11 @@ public class State {
             Symbol transitionSymbol = entry.getKey();
             Set<Item> transitionItems = entry.getValue();
             State transitionState = createTransitionState(transitionItems, states, g);
-            paths.put(transitionSymbol, transitionState);
+            transitionFunction.put(transitionSymbol, transitionState);
         }
     }
 
-    // Create Transition State
-    private State createTransitionState(Set<Item> transitionItems, HashSet<State> states, Grammar g) {
-        State transitionState = new State();
-
-        for (Item item : transitionItems) {
-            Item newItem = new Item(item.getProduction(), item.getDotIndex() + 1, item.getLookaheads());
-            transitionState.addItem(newItem);
-        }
-
-        transitionState.makeEpsilonMoves(g);
-
-        for (State state : states) {
-
-            int itemsSize = transitionState.getItems().size();
-            if (state.getItems().size() == itemsSize && state.sameItems(transitionState)) {
-                return state;
-            }
-        }
-        states.add(transitionState);
-        return transitionState;
-    }
-
+    // Returns true if two ‘State’ objects possess identical sets of ‘Item’ objects. Although two states may be identical, they might not be considered equal if one is still under construction and its transitionFunction isn’t finalized. Therefore, identity is checked using the items.
     public boolean sameItems(State newState) {
 
         HashSet<Item> items1 = items;
@@ -167,6 +153,28 @@ public class State {
         return true;
     }
 
+    // Creates and returns a new ‘State’ object with a given set of items. If the state with the same items already exists, the function doesn’t create a new state and returns existing one. Creating new transition states is necessary in the construction process of the automata.
+    private State createTransitionState(Set<Item> transitionItems, HashSet<State> states, Grammar g) {
+        State transitionState = new State();
+
+        for (Item item : transitionItems) {
+            Item newItem = new Item(item.getProduction(), item.getDotIndex() + 1, item.getLookaheads());
+            transitionState.addItem(newItem);
+        }
+
+        transitionState.makeEpsilonMoves(g);
+
+        for (State state : states) {
+
+            int itemsSize = transitionState.getItems().size();
+            if (state.getItems().size() == itemsSize && state.sameItems(transitionState)) {
+                return state;
+            }
+        }
+        states.add(transitionState);
+        return transitionState;
+    }
+
     public String toStringOnlyState() {
         StringBuilder sb = new StringBuilder();
         sb.append("Number of Completed Items: ").append(completeItems.size()).append("\n");
@@ -187,7 +195,7 @@ public class State {
             sb.append(item).append("\n");
         }
 
-        for (Map.Entry<Symbol, State> entry : paths.entrySet()) {
+        for (Map.Entry<Symbol, State> entry : transitionFunction.entrySet()) {
             Symbol transitionSymbol = entry.getKey();
             State transitionState = entry.getValue();
             sb.append("Transition Symbol: ").append(transitionSymbol).append("\n").append(transitionState.toStringOnlyState()).append("\n");
@@ -201,8 +209,8 @@ public class State {
         return items;
     }
 
-    public HashMap<Symbol, State> getPaths() {
-        return paths;
+    public HashMap<Symbol, State> getTransitionFunction() {
+        return transitionFunction;
     }
 
     public HashSet<Item> getCompleteItems() {

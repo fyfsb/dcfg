@@ -72,7 +72,7 @@ public class Main {
 
         log("number of states: " + dk1.getStates().size());
         log("-----------------------");
-        log("DK1 test passed = " + dk1.Test());
+        log("DK1 test passed = " + dk1.dk1Test());
         log("-----------------------");
         log("\n");
 

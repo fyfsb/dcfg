@@ -3,24 +3,24 @@ package grammar;
 // Encapsulates the concept of symbol, which can either be a terminal or a nonterminal.
 public class Symbol {
 
-    public enum Type {
+    public enum SymbolType {
         Terminal, Nonterminal
     }
 
     // A string representing the actual content of the symbol.
     private final String content;
     // An enum indicating whether the symbol is terminal ar a nonterminal.
-    private final Type type;
+    private final SymbolType type;
 
     // Initializes a symbol with the specified content and type.
-    public Symbol(String content, Type type) {
+    public Symbol(String content, SymbolType type) {
         this.content = content;
         this.type = type;
     }
 
     // Returns true if the symbol is terminal, returns false otherwise.
     public boolean isTerminal() {
-        return type == Type.Terminal;
+        return type == SymbolType.Terminal;
     }
 
     // Returns the length of the content string.
@@ -53,7 +53,7 @@ public class Symbol {
     @Override
     public int hashCode() {
         int result = content.hashCode();
-        result = 31 * result + (type == Type.Terminal ? 1 : 0);
+        result = 31 * result + (type == SymbolType.Terminal ? 1 : 0);
         return result;
     }
 
@@ -61,7 +61,7 @@ public class Symbol {
         return content;
     }
 
-    public Type getType() {
+    public SymbolType getType() {
         return type;
     }
 

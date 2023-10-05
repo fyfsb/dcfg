@@ -53,11 +53,11 @@ public class Grammar {
         Scanner in = new Scanner(new File(terminalsFilePath));
         while (in.hasNext()) {
             final String terminal = in.nextLine().replaceAll("\\s", "");
-            terminals.add(new Symbol(terminal, Symbol.Type.Terminal));
+            terminals.add(new Symbol(terminal, Symbol.SymbolType.Terminal));
         }
-        terminals.add(new Symbol(" ", Symbol.Type.Terminal));
-        terminals.add(new Symbol("\t", Symbol.Type.Terminal));
-        terminals.add(new Symbol("\n", Symbol.Type.Terminal));
+        terminals.add(new Symbol(" ", Symbol.SymbolType.Terminal));
+        terminals.add(new Symbol("\t", Symbol.SymbolType.Terminal));
+        terminals.add(new Symbol("\n", Symbol.SymbolType.Terminal));
     }
 
     // Reads nonterminals from 'Grammar.txt'
@@ -70,7 +70,7 @@ public class Grammar {
             String withoutWhitespace = str.replaceAll("\\s", "");
             // Nonterminals occur on the left-hand side of the productions.
             String[] parts = withoutWhitespace.split("->");
-            nonterminals.add(new Symbol(parts[0], Symbol.Type.Nonterminal));
+            nonterminals.add(new Symbol(parts[0], Symbol.SymbolType.Nonterminal));
         }
     }
 
@@ -83,12 +83,12 @@ public class Grammar {
             final String str = in.nextLine();
             // Distinguish left and right attributes
             String[] parts = str.split(" -> ");
-            Symbol left = new Symbol(parts[0], Symbol.Type.Nonterminal);
+            Symbol left = new Symbol(parts[0], Symbol.SymbolType.Nonterminal);
             // Decompose merged productions and save separately.
             String[] rightParts = parts[1].split(" \\| ");
             for (String rightStr : rightParts) {
                 ArrayList<Symbol> right = stringIntoSymbols(rightStr, this.getTerminals(), this.getNonterminals());
-                right = eraseExtraWhitespace(right);
+                right = eleminateExtraWhitespace(right);
                 productions.add(new Production(left, right));
             }
         }
@@ -113,12 +113,12 @@ public class Grammar {
         for (int i = 0; i < str.length(); i++) {
             String subStr = str.substring(0, str.length() - i);
 
-            Symbol nonterminal = new Symbol(subStr, Symbol.Type.Nonterminal);
+            Symbol nonterminal = new Symbol(subStr, Symbol.SymbolType.Nonterminal);
             if (nonterminals.contains(nonterminal)) {
                 return nonterminal;
             }
 
-            Symbol terminal = new Symbol(subStr, Symbol.Type.Terminal);
+            Symbol terminal = new Symbol(subStr, Symbol.SymbolType.Terminal);
             if (terminals.contains(terminal)) {
                 return terminal;
             }
@@ -138,19 +138,19 @@ public class Grammar {
     // 8) --- fix the error: struct {} s; it removes whitespace between } and variable name
 
     // Pre-processing no comments yet, before we finalize the implementation of this function.
-    public static ArrayList<Symbol> eraseExtraWhitespace(ArrayList<Symbol> array) {
+    public static ArrayList<Symbol> eleminateExtraWhitespace(ArrayList<Symbol> array) {
 
         ArrayList<Symbol> result = new ArrayList<>();
 
-        Symbol space = new Symbol(" ", Symbol.Type.Terminal);
-        Symbol tab = new Symbol("\t", Symbol.Type.Terminal);
-        Symbol endline = new Symbol("\n", Symbol.Type.Terminal);
+        Symbol space = new Symbol(" ", Symbol.SymbolType.Terminal);
+        Symbol tab = new Symbol("\t", Symbol.SymbolType.Terminal);
+        Symbol endline = new Symbol("\n", Symbol.SymbolType.Terminal);
 
-        Symbol semicolon = new Symbol(";", Symbol.Type.Terminal);
-        Symbol bracket1 = new Symbol("(", Symbol.Type.Terminal);
-        Symbol bracket2 = new Symbol(")", Symbol.Type.Terminal);
-        Symbol curlyBracket1 = new Symbol("{", Symbol.Type.Terminal);
-        Symbol curlyBracket2 = new Symbol("}", Symbol.Type.Terminal);
+        Symbol semicolon = new Symbol(";", Symbol.SymbolType.Terminal);
+        Symbol bracket1 = new Symbol("(", Symbol.SymbolType.Terminal);
+        Symbol bracket2 = new Symbol(")", Symbol.SymbolType.Terminal);
+        Symbol curlyBracket1 = new Symbol("{", Symbol.SymbolType.Terminal);
+        Symbol curlyBracket2 = new Symbol("}", Symbol.SymbolType.Terminal);
 
 
         Predicate<Symbol> isWhitespace = symbol -> symbol.equals(space) || symbol.equals(tab) || symbol.equals(endline);
