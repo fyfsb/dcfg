@@ -53,8 +53,8 @@ public class DK1 {
             State currentState = queue.remove();
             currentState.makeShiftMoves(states, grammar);
 
-            if ((int) (states.size() / 28.07) > completionPercentage) {
-                completionPercentage = (int) (states.size() / 28.07);
+            if ((int) (states.size() / 32.53) > completionPercentage) {
+                completionPercentage = (int) (states.size() / 32.53);
                 log("DK1 Automaton Progress: " + completionPercentage + "%");
             }
 
@@ -78,18 +78,18 @@ public class DK1 {
 
     // Returns true if the ‘Grammar’ is LR(1), false otherwise.
     public boolean dk1Test() {
-        for (State state : states) {
-            for (Item R1 : state.getItems()) {
-                for (Item R2 : state.getItems()) {
+        for (State currentState : states) {
+            for (Item R1 : currentState.getItems()) {
+                for (Item R2 : currentState.getItems()) {
                     if (!R1.isComplete()) break;
                     if (R1.equals(R2)) continue;
                     if (R2.isComplete()) {
                         for (Symbol symbol : R1.getLookaheads()) {
                             if (R2.getLookaheads().contains(symbol)) {
-                                log("Rejecting State Condition_1: ");
+                                log("Failing State Condition_1: ");
                                 log(R1);
                                 log(R2);
-                                log(state.toStringOnlyState());
+                                log(currentState.toStringOnlyState());
                                 return false;
                             }
                         }
@@ -97,10 +97,10 @@ public class DK1 {
                         Symbol currentSymbol = R2.currentSymbol();
 
                         if (R1.getLookaheads().contains(currentSymbol)) {
-                            log("Rejecting State Condition_2: ");
+                            log("Failing State Condition_2: ");
                             log(R1);
                             log(R2);
-                            log(state.toStringOnlyState());
+                            log(currentState.toStringOnlyState());
                             return false;
                         }
                     }

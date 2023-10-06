@@ -19,7 +19,7 @@ public class Main {
     /*
     Some Test Program Codes:
 
-    bool b; bool c; int main() {b=(bool)c||false;return 1}~
+    bool benjamin; bool c; int main() {benjamin=(bool)c||false;return 1}~
     char c; int main() {c=t; return 1}~
     int x; int main() {x=-14; return 1}~
     int x; int main(){x=2; if true {x=4}else{x=9};return 3}~
@@ -56,10 +56,6 @@ public class Main {
 
         String grammarFilePath = "src/main/java/grammar/Grammar.txt";
         String terminalsFilePath = "src/main/java/grammar/Terminals.txt";
-
-        //String grammarFilePath = "C:/Users/Student/Desktop/CFG_1/Example1/Grammar.txt";
-        //String terminalsFilePath = "C:/Users/Student/Desktop/CFG_1/Example1/Terminals.txt";
-
 
         DEBUG = true;
 

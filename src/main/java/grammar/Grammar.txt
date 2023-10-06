@@ -5,14 +5,16 @@
 <TE> -> <Ty>[<DiS>] | <Ty>' | struct {<VaDS>}
 <VaDS> -> <VaD> | <VaDS>;<VaD>
 <VaD> -> <Ty> <Na>
-<FuDS> -> <FuD> | <FuDS>;<FuD>
+<FuDS> -> <FuD> | <FuD>;<FuDS>
 <FuD> -> <Ty> <Na> (<PaDS>){<VaDS>;<body>} | <Ty> <Na> (<PaDS>){<body>} | <Ty> <Na> (){<VaDS>;<body>} | <Ty> <Na> (){<body>}
-<PaDS> -> <VaD> | <PaDS>,<VaD>
+<PaDS> -> <VaD> | <VaD>,<PaDS>
 <body> -> <rSt> | <StS>;<rSt>
 <Di> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-<DiS> -> <Di> | <DiS><Di>
+<DiS> -> <Di> | <Di><DiS>
 <Le> -> A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z
-<Na> -> <Le> | <Na><Le>
+<DiLe> -> <Le> | <Di>
+<DiLeS> -> <DiLe> | <DiLe><DiLeS>
+<Na> -> <Le> | <Le><DiLeS>
 <C> -> <DiS> | <DiS>u | null
 <CC> -> ! | " | # | $ | % | & | | | ' | ( | ) | * | + | , | - | . | / | : | ; | < | = | > | ? | @
 <BC> -> true | false
@@ -24,8 +26,8 @@
 <BF> -> (bool)<id> | <Atom> | !<BF> | (<BE>)
 <BT> -> <BF> | <BT>&&<BF>
 <BE> -> <BT> | <BE>||<BT>
-<St> -> <id>=<E> | <id>=<BE> | <id>=<CC> | if <BE> {<StS>} | if <BE> {<StS>} else {<StS>} | while <BE> {<StS>} | <id>=<Na>(<PaS>) | <id>=<Na>() | <id>=new <Na>'
+<St> -> <id>=<E> | <id>=<BE> | <id>=<CC> | if <BE> {<StS>} | if <BE> {<StS>} else {<StS>} | while<BE> {<StS>} | <id>=<Na>(<PaS>) | <id>=<Na>() | <id>=new <Na>'
 <rSt> -> return <E> | return <BE> | return <CC>
 <Pa> -> <E> | <BE> | <CC>
-<PaS> -> <Pa> | <PaS>,<Pa>
+<PaS> -> <Pa> | <Pa>,<PaS>
 <StS> -> <St> | <StS>;<St>
