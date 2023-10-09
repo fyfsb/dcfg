@@ -88,7 +88,7 @@ public class Grammar {
             String[] rightParts = parts[1].split(" \\| ");
             for (String rightStr : rightParts) {
                 ArrayList<Symbol> right = stringIntoSymbols(rightStr, this.getTerminals(), this.getNonterminals());
-                right = eleminateExtraWhitespace(right);
+                right = eliminateExtraWhitespace(right);
                 productions.add(new Production(left, right));
             }
         }
@@ -127,65 +127,81 @@ public class Grammar {
         throw new IllegalArgumentException("Can't find the first symbol in this string:  " + str);
     }
 
-    // There are 4 cases when we erase the whitespace from the array
-    // 1) if we have multiple whitespaces together we leave only one: [" ", " ", " "] -> [" "]
-    // 2) The start and the end should not be the whitespace
-    // 3) erase all other kinds of the Whitespaces: ["\n", "\t", ...]
-    // 4) if the previous symbol is [";", "(", ")", "{", "}"]
-    // 5) --- not yet implemented: remove whitespace after "," in the parameter declaration
-    // 6) --- not yet implemented: remove whitespace before and after "="
-    // 7) --- not yet implemented: remove whitespace before and after "+" and other operations
-    // 8) --- fix the error: struct {} s; it removes whitespace between } and variable name
-
-    // Pre-processing no comments yet, before we finalize the implementation of this function.
-    public static ArrayList<Symbol> eleminateExtraWhitespace(ArrayList<Symbol> array) {
-
-        ArrayList<Symbol> result = new ArrayList<>();
+    // Removes all the extra whitespaces in the given validStringArray as specified below
+    // 1) If there are adjacent whitespaces, remove them, and leave only one: [" ", " ", " "] -> [" "]
+    // 2) Erase all the tabs and end-lines: ["\n", "\t", ...]
+    // 3) Erase all surrounding whitespaces of: , ; ( ) + - * / & | ! < > = [ ]
+    public static ArrayList<Symbol> eliminateExtraWhitespace(ArrayList<Symbol> validStringArray) {
 
         Symbol space = new Symbol(" ", Symbol.SymbolType.Terminal);
         Symbol tab = new Symbol("\t", Symbol.SymbolType.Terminal);
-        Symbol endline = new Symbol("\n", Symbol.SymbolType.Terminal);
+        Symbol endLine = new Symbol("\n", Symbol.SymbolType.Terminal);
 
-        Symbol semicolon = new Symbol(";", Symbol.SymbolType.Terminal);
-        Symbol bracket1 = new Symbol("(", Symbol.SymbolType.Terminal);
-        Symbol bracket2 = new Symbol(")", Symbol.SymbolType.Terminal);
-        Symbol curlyBracket1 = new Symbol("{", Symbol.SymbolType.Terminal);
-        Symbol curlyBracket2 = new Symbol("}", Symbol.SymbolType.Terminal);
+        HashSet<Symbol> syntaxSymbols = initializeSyntaxSymbols();
 
 
-        Predicate<Symbol> isWhitespace = symbol -> symbol.equals(space) || symbol.equals(tab) || symbol.equals(endline);
-        Predicate<Symbol> isPredefinedSymbol = symbol -> symbol.equals(semicolon) || symbol.equals(bracket1)
-                || symbol.equals(bracket2) || symbol.equals(curlyBracket1) || symbol.equals(curlyBracket2);
-        Predicate<Symbol> isOpeningBracket = symbol -> symbol.equals(bracket1) || symbol.equals(curlyBracket1);
+        Predicate<Symbol> isWhitespace = symbol -> symbol.equals(space) || symbol.equals(tab) || symbol.equals(endLine);
+        Predicate<Symbol> isSyntaxSymbol = syntaxSymbols::contains;
 
-        for (int i = 0; i < array.size(); i++) {
-            Symbol currentSymbol = array.get(i);
-            if (i > 0) {
-                if (isWhitespace.test(currentSymbol)) {
-                    if (currentSymbol.equals(tab) || currentSymbol.equals(endline)) {
+        ArrayList<Symbol> result = new ArrayList<>();
+        // Left to Right loop to remove all the extra whitespace
+        for (int i = 0; i < validStringArray.size() - 1; i++) {
+            Symbol currentSymbol = validStringArray.get(i);
+            Symbol nextSymbol = validStringArray.get(i + 1);
+
+            if (isWhitespace.test(currentSymbol)) {
+                if(currentSymbol.equals(tab) || currentSymbol.equals(endLine)) {
+                    continue;
+                } else {
+                    if (isWhitespace.test(nextSymbol)) {
                         continue;
                     }
-                    if (i == array.size() || isWhitespace.test(array.get(i - 1)) || isPredefinedSymbol.test(array.get(i - 1))) {
-                        continue;
-                    }
-                }
-
-                if (isWhitespace.test(currentSymbol)) {
-                    if ((i + 1) < array.size() && isOpeningBracket.test(array.get(i + 1))) {
-                        continue;
-                    }
-                }
-
-                result.add(currentSymbol);
-
-            } else {
-                if (!isWhitespace.test(currentSymbol)) {
-                    result.add(currentSymbol);
                 }
             }
+
+            if (isWhitespace.test(currentSymbol)) {
+                if (isSyntaxSymbol.test(nextSymbol)) {
+                    continue;
+                }
+            }
+
+            if (isWhitespace.test(currentSymbol)) {
+                if (i > 0 && isSyntaxSymbol.test(validStringArray.get(i - 1))) {
+                    continue;
+                }
+            }
+
+            result.add(currentSymbol);
+        }
+
+        Symbol lastSymbol = validStringArray.get(validStringArray.size() - 1);
+        if (!isWhitespace.test(lastSymbol)) {
+            result.add(lastSymbol);
         }
 
         return result;
+
+    }
+
+    private static HashSet<Symbol> initializeSyntaxSymbols() {
+        HashSet<Symbol> syntaxSymbols = new HashSet<>();
+        syntaxSymbols.add(new Symbol(",", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol(";", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol("+", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol("-", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol("*", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol("/", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol("&", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol("|", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol("!", Symbol.SymbolType.Terminal));
+        syntaxSymbols.add(new Symbol("=", Symbol.SymbolType.Terminal));
+        //syntaxSymbols.add(new Symbol("[", Symbol.SymbolType.Terminal));
+        //syntaxSymbols.add(new Symbol("]", Symbol.SymbolType.Terminal));
+        //syntaxSymbols.add(new Symbol("(", Symbol.SymbolType.Terminal));
+        //syntaxSymbols.add(new Symbol(")", Symbol.SymbolType.Terminal));
+        //syntaxSymbols.add(new Symbol("<", Symbol.SymbolType.Terminal));
+        //syntaxSymbols.add(new Symbol(">", Symbol.SymbolType.Terminal));
+        return syntaxSymbols;
     }
 
     // Returns a string representation of the entire grammar.

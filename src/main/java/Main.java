@@ -1,7 +1,9 @@
 import codegen.CodeGenerator;
 import config.Configuration;
 import dk.DK1;
+import dk.State;
 import grammar.Grammar;
+import grammar.Symbol;
 import table.FunctionTable;
 import table.MemoryTable;
 import table.TypeTable;
@@ -10,6 +12,7 @@ import util.TypeUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 
 import static util.Context.DEBUG;
 import static util.Logger.log;
@@ -19,11 +22,11 @@ public class Main {
     /*
     Some Test Program Codes:
 
-    bool benjamin; bool c; int main() {benjamin=(bool)c||false;return 1}~
-    char c; int main() {c=t; return 1}~
-    int x; int main() {x=-14; return 1}~
-    int x; int main(){x=2; if true {x=4}else{x=9};return 3}~
-    typedef int[6] arr; arr a;int main() {a[0]=5;return 1}~
+    bool benjamin; bool c; int main(){benjamin=(bool)c||false;return 1}~
+    char c; int main(){c=t; return 1}~
+    int x; int main(){x=-14; return 1}~
+    int x; int main(){x=2; if true {x=4} else {x=9};return 3}~
+    typedef int[6] arr; arr a;int main(){a[0]=5;return 1}~
 
      */
 

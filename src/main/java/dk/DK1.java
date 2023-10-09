@@ -53,8 +53,8 @@ public class DK1 {
             State currentState = queue.remove();
             currentState.makeShiftMoves(states, grammar);
 
-            if ((int) (states.size() / 32.53) > completionPercentage) {
-                completionPercentage = (int) (states.size() / 32.53);
+            if ((int) (states.size() / 31.97) > completionPercentage) {
+                completionPercentage = (int) (states.size() / 31.97);
                 log("DK1 Automaton Progress: " + completionPercentage + "%");
             }
 
@@ -115,7 +115,7 @@ public class DK1 {
     public DTE parseString(String validString) {
 
         ArrayList<Symbol> validStringArray = Grammar.stringIntoSymbols(validString, g.getTerminals(), g.getNonterminals());
-        validStringArray = Grammar.eleminateExtraWhitespace(validStringArray);
+        validStringArray = Grammar.eliminateExtraWhitespace(validStringArray);
 
         // Initialize The parse tree with the validStringArray and after the parsing only the root will be in the array
         ArrayList<DTE> parseTree = new ArrayList<>();
