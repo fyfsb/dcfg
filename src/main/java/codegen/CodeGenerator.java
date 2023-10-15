@@ -262,7 +262,7 @@ public class CodeGenerator {
     public void generateIfStatement(DTE dte) throws Exception {
         checkTokenType(dte, "if");
 
-        if (dte.getSiblingCount() == 9) {
+        if (dte.getSiblingCount() >= 9) {
             generateIfElseStatement(dte);
             return;
         }

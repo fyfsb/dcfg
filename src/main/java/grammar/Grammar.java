@@ -97,9 +97,9 @@ public class Grammar {
     // Receives a string of symbols, and sets of all terminal and nonterminal symbols.
     // Decomposes the given string into symbols and returns respective ArrayList.
     // Basically this function is a tokenization of a string into the respective ArrayList of 'symbols'.
-    public static ArrayList<Symbol> stringIntoSymbols(String str,  HashSet<Symbol> terminals, HashSet<Symbol> nonterminals) {
+    public static ArrayList<Symbol> stringIntoSymbols(String str, HashSet<Symbol> terminals, HashSet<Symbol> nonterminals) {
         ArrayList<Symbol> result = new ArrayList<>();
-        while (!str.isEmpty()){
+        while (!str.isEmpty()) {
             Symbol symbol = firstSymbolInString(str, terminals, nonterminals);
             result.add(symbol);
             str = str.substring(symbol.length());
@@ -150,7 +150,7 @@ public class Grammar {
             Symbol nextSymbol = validStringArray.get(i + 1);
 
             if (isWhitespace.test(currentSymbol)) {
-                if(currentSymbol.equals(tab) || currentSymbol.equals(endLine)) {
+                if (currentSymbol.equals(tab) || currentSymbol.equals(endLine)) {
                     continue;
                 } else {
                     if (isWhitespace.test(nextSymbol)) {
@@ -189,7 +189,7 @@ public class Grammar {
         syntaxSymbols.add(new Symbol(";", Symbol.SymbolType.Terminal));
         syntaxSymbols.add(new Symbol("+", Symbol.SymbolType.Terminal));
         syntaxSymbols.add(new Symbol("-", Symbol.SymbolType.Terminal));
-        syntaxSymbols.add(new Symbol("*", Symbol.SymbolType.Terminal));
+//        syntaxSymbols.add(new Symbol("*", Symbol.SymbolType.Terminal));
         syntaxSymbols.add(new Symbol("/", Symbol.SymbolType.Terminal));
         syntaxSymbols.add(new Symbol("&", Symbol.SymbolType.Terminal));
         syntaxSymbols.add(new Symbol("|", Symbol.SymbolType.Terminal));

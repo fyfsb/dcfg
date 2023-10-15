@@ -38,6 +38,17 @@ public class TypeTable implements Table {
         return type;
     }
 
+    public VarType getTypesPointer(VarType type) {
+        return table.entrySet().stream().filter(entry -> {
+            try {
+                return entry.getValue().typeClass == VarType.TypeClass.POINTER &&
+                        entry.getValue().getPointerTargetType().equals(type);
+            } catch (TypeNotDefinedException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList().get(0).getValue();
+    }
+
     private boolean isNameDistinct(String name) {
         return !table.containsKey(name);
     }

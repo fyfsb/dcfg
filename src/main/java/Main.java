@@ -1,9 +1,7 @@
 import codegen.CodeGenerator;
 import config.Configuration;
 import dk.DK1;
-import dk.State;
 import grammar.Grammar;
-import grammar.Symbol;
 import table.FunctionTable;
 import table.MemoryTable;
 import table.TypeTable;
@@ -12,9 +10,6 @@ import util.TypeUtils;
 
 import java.io.*;
 import java.util.Scanner;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.HashSet;
 
 import static util.Context.DEBUG;
 import static util.Logger.log;

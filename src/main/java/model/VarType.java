@@ -212,4 +212,29 @@ public class VarType {
                 ", arraySize=" + arraySize +
                 ", structComponents=" + structComponents;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof VarType other)) return false;
+        if (super.equals(other)) return true;
+
+        if (typeClass == TypeClass.POINTER) {
+            try {
+                return other.typeClass == TypeClass.POINTER && getPointerTargetType().equals(other.getPointerTargetType());
+            } catch (TypeNotDefinedException e) {
+                return false;
+            }
+        }
+
+        if (typeClass == TypeClass.ARRAY) {
+            try {
+                return other.typeClass == TypeClass.ARRAY && getArrayCompTargetType().equals(other.getArrayCompTargetType()) &&
+                        arraySize == other.arraySize;
+            } catch (TypeNotDefinedException e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
 }

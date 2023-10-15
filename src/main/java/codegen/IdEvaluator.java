@@ -3,8 +3,10 @@ package codegen;
 import config.Configuration;
 import model.Fun;
 import model.VarReg;
+import model.VarType;
 import model.Variable;
 import table.MemoryTable;
+import table.TypeTable;
 import tree.DTE;
 
 import static codegen.ExpressionEvaluator.evaluateExpression;
@@ -43,7 +45,7 @@ public class IdEvaluator {
             DTE nestedId = id.getFirstSon();
             DTE nestedNa = id.getNthSon(3);
 //            int struct = evaluateId(flattened.get(0));
-            VarReg structReg = evaluateId(nestedId, lv);
+            VarReg structReg = evaluateId(nestedId, true);
             String compName = nestedNa.getBorderWord();
 
             Variable boundComp = structReg.variable.getStructComponent(compName);
@@ -75,7 +77,7 @@ public class IdEvaluator {
             DTE nestedId = id.getFirstSon();
             DTE nestedIndex = id.getNthSon(3);
 
-            VarReg array = evaluateId(nestedId, lv);
+            VarReg array = evaluateId(nestedId, true);
             VarReg index = evaluateExpression(nestedIndex);
 
             // gpr(23) = enc(size(t))
@@ -104,7 +106,8 @@ public class IdEvaluator {
 
         // id -> id*
         if (id.getNthSon(2).isType("'")) {
-            VarReg pointer = evaluateId(id.getFirstSon(), lv);
+            VarReg pointer = evaluateId(id.getFirstSon(), true);
+            log("POINTER " + id.getBorderWord() + ", of form: " + pointer.variable + ", " + pointer.type);
 
             // create instruction lw j j 0 ~ deref
             String instr = Instruction.deref(pointer.register);
@@ -114,11 +117,14 @@ public class IdEvaluator {
                 cg().addInstruction(Instruction.deref(pointer.register));
             }
 
-            return pointer;
+            VarType targetType = TypeTable.getInstance().getType(pointer.type.pointerTypeTargetName);
+            return new VarReg(new Variable(null, 0, targetType, 0), pointer.register);
         }
 
         if (id.getNthSon(2).isType("&")) {
-            return bindVariableName(id.getFirstSon());
+            VarReg boundVar = bindVariableName(id.getFirstSon().getFirstSon());
+            VarType pType = TypeTable.getInstance().getTypesPointer(boundVar.type);
+            return new VarReg(boundVar.register, pType);
         }
 
         throw new IllegalArgumentException("Grammar error on \"" + id.getBorderWord() + "\"");

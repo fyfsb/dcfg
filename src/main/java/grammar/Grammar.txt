@@ -2,10 +2,10 @@
 <TyDS> -> <TyD> | <TyDS>;<TyD>
 <TyD> -> typedef <TE> <Na>
 <Ty> -> int | bool | char | uint | <Na>
-<TE> -> <Ty>[<DiS>] | <Ty>* | struct {<VaDS>}
+<TE> -> <Ty>[<DiS>] | <Ty>' | struct {<VaDS>}
 <VaDS> -> <VaD> | <VaDS>;<VaD>
 <VaD> -> <Ty> <Na>
-<FuDS> -> <FuD> | <FuD>;<FuDS>
+<FuDS> -> <FuD> | <FuDS>;<FuD>
 <FuD> -> <Ty> <Na>(<PaDS>){<VaDS>;<body>} | <Ty> <Na>(<PaDS>){<body>} | <Ty> <Na>(){<VaDS>;<body>} | <Ty> <Na>(){<body>}
 <PaDS> -> <VaD> | <VaD>,<PaDS>
 <body> -> <rSt> | <StS>;<rSt>
@@ -26,7 +26,7 @@
 <BF> -> (bool)<id> | <Atom> | !<BF> | (<BE>)
 <BT> -> <BF> | <BT>&&<BF>
 <BE> -> <BT> | <BE>||<BT>
-<St> -> <id>=<E> | <id>=<BE> | <id>=<CC> | if <BE> {<StS>} | if <BE> {<StS>} else {<StS>} | while <BE> {<StS>} | <id>=<Na>(<PaS>) | <id>=<Na>() | <id>=new <Na>*
+<St> -> <id>=<E> | <id>=<BE> | <id>=<CC> | if <BE> {<StS>} | if <BE> {<StS>} else {<StS>} | while <BE> {<StS>} | <id>=<Na>(<PaS>) | <id>=<Na>() | <id>=new <Na>'
 <rSt> -> return <E> | return <BE> | return <CC>
 <Pa> -> <E> | <BE> | <CC>
 <PaS> -> <Pa> | <Pa>,<PaS>
