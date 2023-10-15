@@ -11,6 +11,8 @@ import util.TypeUtils;
 import java.util.LinkedList;
 import java.util.List;
 
+import static util.Logger.log;
+
 public class Fun {
     @Override
     public String toString() {
@@ -87,7 +89,8 @@ public class Fun {
             if (pads == null) {
                 numParameters = 0;
             } else {
-                numParameters = pads.getChildrenSize();
+                numParameters = pads.getFlattenedSequence().size();
+//                numParameters = pads.getChildrenSize();
             }
 
             List<List<String>> componentPairs = extractComponentPairs();
@@ -175,12 +178,14 @@ public class Fun {
         DTE nextElement = fud.getNthSon(4);
         if (nextElement.isType("<PaDS>")) {
             pads = nextElement;
+            log("Pads: " + pads.getBorderWord());
             nextElement = nextElement.getBrother();
         }
 
         // getting to function closure. If there are no variable declarations, current tree element is expected to be <body>
         nextElement = nextElement.getNthBrother(2);
         if (nextElement.isType("<VaDS>")) {
+            log("Vads: " + pads.getBorderWord());
             vads = nextElement;
             nextElement = nextElement.getNthBrother(2);
         }

@@ -7,7 +7,7 @@
 <VaD> -> <Ty> <Na>
 <FuDS> -> <FuD> | <FuDS>;<FuD>
 <FuD> -> <Ty> <Na>(<PaDS>){<VaDS>;<body>} | <Ty> <Na>(<PaDS>){<body>} | <Ty> <Na>(){<VaDS>;<body>} | <Ty> <Na>(){<body>}
-<PaDS> -> <VaD> | <VaD>,<PaDS>
+<PaDS> -> <VaD> | <PaDS>,<VaD>
 <body> -> <rSt> | <StS>;<rSt>
 <Di> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 <DiS> -> <Di> | <Di><DiS>
@@ -29,5 +29,5 @@
 <St> -> <id>=<E> | <id>=<BE> | <id>=<CC> | if <BE> {<StS>} | if <BE> {<StS>} else {<StS>} | while <BE> {<StS>} | <id>=<Na>(<PaS>) | <id>=<Na>() | <id>=new <Na>'
 <rSt> -> return <E> | return <BE> | return <CC>
 <Pa> -> <E> | <BE> | <CC>
-<PaS> -> <Pa> | <Pa>,<PaS>
+<PaS> -> <Pa> | <PaS>,<Pa>
 <StS> -> <St> | <StS>;<St>

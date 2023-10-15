@@ -217,12 +217,12 @@ public class CodeGenerator {
         res.append("_main:\n");
         List<String> mainInstructions = functionInstructions.get("main");
         res.append(String.join("\n", mainInstructions))
-                        .append("\n");
+                .append("\n");
 
         functionInstructions.forEach((key, value) -> {
             if (!key.equals("main")) {
                 res.append("\n_").append(key).append(":\n")
-                        .append(String.join("\n",value))
+                        .append(String.join("\n", value))
                         .append("\n");
             }
         });
@@ -346,9 +346,14 @@ public class CodeGenerator {
 //                .subList(0, function.getNumParameters());
 
         int index = 0;
-        for (DTE pa = paS.getFirstSon(); pa != null && pa.getBrother() != null; pa = pa.getNthBrother(2).getFirstSon()) {
+        List<DTE> paSFlattened = paS.getFlattenedSequence();
+        if (paSFlattened.size() != function.getNumParameters()) {
+            throw new IllegalArgumentException("Incorrect number of params! expected: " + function.getNumParameters() + ", got: " + paSFlattened.size());
+        }
+        for (DTE pa : paSFlattened) {
             checkTokenType(pa, "<Pa>");
             VarReg expr;
+            pa = pa.getFirstSon();
             if (pa.isType("<E>")) {
                 expr = evaluateExpression(pa);
             } else if (pa.isType("<BE>")) {
@@ -358,6 +363,9 @@ public class CodeGenerator {
             } else throw new IllegalArgumentException("Grammar error on " + paS.getBorderWord());
 
             Variable parameter = params.get(index).getValue();
+
+            checkSameTypes(parameter.getType(), expr.type);
+
             int imm = -function.getSize() + parameter.getDisplacement();
             CodeGenerator.getInstance().addInstruction(Instruction.sw(expr.register, SPT, imm));
             Configuration.getInstance().freeRegister(expr.register);

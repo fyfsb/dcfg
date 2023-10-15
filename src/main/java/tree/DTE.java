@@ -61,11 +61,11 @@ public class DTE {
         List<DTE> result = new LinkedList<>();
 
         // XS -> XS; X
-        if (firstSon.brother == null) {
+        if (firstSon.getBrother() == null) {
             result.add(firstSon);
         } else {
             result.addAll(firstSon.getFlattenedSequence());
-            result.add(firstSon.brother.brother);
+            result.add(firstSon.getNthBrother(2));
         }
 
         return result;
@@ -82,12 +82,14 @@ public class DTE {
     }
 
     public List<List<String>> extractComponentPairs() {
+        log("type: " + labelContent());
+        log("extr: " + getFirstSon().labelContent());
         List<DTE> flattened = getFlattenedSequence();
         List<List<String>> result = new LinkedList<>();
         for (DTE dte : flattened) {
-            log(dte.getBorderWord());
-            if (dte.isType(";")) {
-                dte = dte.brother;
+            log("extract component pair: " + dte.getBorderWord());
+            if (dte.isType(";") || dte.isType(",")) {
+                dte = dte.getBrother();
             }
             String type = dte.getFirstSon().getBorderWord();
             String name = dte.getNthSon(2).getBorderWord();
