@@ -10,6 +10,8 @@ import table.TypeTable;
 import tree.DTE;
 import util.TypeUtils;
 
+import java.io.*;
+import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashSet;
@@ -79,9 +81,21 @@ public class Main {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             System.out.println("code:");
-            String code = reader.readLine();
+            String path = reader.readLine();
+            File file = new File(path);
+            Scanner sc = new Scanner(file);
+            StringBuilder code = new StringBuilder();
+            String outputFileName = path.replace(".c0", ".asm");
+
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
+
+            while (sc.hasNext()) {
+                code.append(sc.nextLine()).append("\n");
+            }
+
             try {
-                DTE parsedTree = dk1.parseString(code);
+                DTE parsedTree = dk1.parseString(code.toString());
 
                 // Print the ParsedTree
                 log("The Parse Tree: ");
@@ -94,6 +108,9 @@ public class Main {
 
                 System.out.println("C0: " + code);
                 CodeGenerator.getInstance().printInstructions();
+
+                writer.write(CodeGenerator.getInstance().getInstructions());
+                writer.close();
 
             } catch (Exception e) {
                 e.printStackTrace();

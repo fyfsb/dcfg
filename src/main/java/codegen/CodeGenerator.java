@@ -212,6 +212,23 @@ public class CodeGenerator {
         System.out.println("--------------------------");
     }
 
+    public String getInstructions() {
+        StringBuilder res = new StringBuilder();
+        res.append("_main:\n");
+        List<String> mainInstructions = functionInstructions.get("main");
+        res.append(String.join("\n", mainInstructions))
+                        .append("\n");
+
+        functionInstructions.forEach((key, value) -> {
+            if (!key.equals("main")) {
+                res.append("\n_").append(key).append(":\n")
+                        .append(String.join("\n",value))
+                        .append("\n");
+            }
+        });
+        return res.toString();
+    }
+
     public void generateLoop(DTE dte) throws Exception {
         checkTokenType(dte, "while");
 
